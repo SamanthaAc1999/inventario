@@ -1,7 +1,9 @@
 package com.boceto.inventario.screens
 
 import android.graphics.drawable.Icon
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
@@ -37,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.boceto.inventario.ui.theme.InventarioTheme
 import androidx.compose.ui.unit.dp
@@ -56,7 +60,8 @@ fun InventoryScreen() {
                 navigationIcon = {
                     IconButton(
                         onClick = {/*TODO*/},
-                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF151635), contentColor = Color.White)
+                        colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF151635), contentColor = Color.White),
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowLeft,
@@ -67,7 +72,9 @@ fun InventoryScreen() {
             )
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(it)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(it)) {
             layoutSearchItem()
             Column (
                 modifier = Modifier.padding(horizontal = 20.dp)
@@ -87,9 +94,11 @@ fun InventoryScreen() {
 @Composable
 fun layoutSearchItem(){
     Row (
-        modifier = Modifier.fillMaxWidth().background(Color(0xFF151635)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF151635)),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement= Arrangement.Center
+        horizontalArrangement= Arrangement.SpaceEvenly
     ){
         TextField(
             value = "",
@@ -97,7 +106,9 @@ fun layoutSearchItem(){
             trailingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             },
-            modifier = Modifier.padding(5.dp).background(Color(0xFFEEF1F5)),
+            modifier = Modifier
+                .padding(5.dp)
+                .background(Color(0xFFEEF1F5)),
             placeholder = {
                 Text(text = "0000001")
             }
@@ -105,8 +116,8 @@ fun layoutSearchItem(){
         Spacer(modifier = Modifier.width(10.dp))
         Icon(
             imageVector = Icons.Filled.Info,
-            contentDescription = null,
-            tint = Color.White
+            contentDescription = "Icon Camera",
+            tint = Color.White,
         )
     }
 }
@@ -118,7 +129,9 @@ fun CardItemInformation() {
           containerColor = Color(0xFFECF1F7),
           contentColor = Color.Black
       ),
-      modifier = Modifier.fillMaxWidth().padding(20.dp)
+      modifier = Modifier
+          .fillMaxWidth()
+          .padding(20.dp)
   ) {
       Column {
           Text(
@@ -139,11 +152,13 @@ fun CardItemInformation() {
                   TextField(
                       value = "",
                       onValueChange = {},
-                      modifier = Modifier.height(30.dp).width(80.dp)
+                      modifier = Modifier
+                          .height(30.dp)
+                          .width(80.dp)
                   )
                   Spacer(modifier = Modifier.width(5.dp))
                   Button(
-                      onClick = {/*TODO*/},
+                      onClick = {/*TODO*/ },
                       colors = ButtonDefaults.buttonColors(
                           containerColor = Color(0xFF151635)
                       )
@@ -163,7 +178,9 @@ fun CardTableItems(){
             containerColor = Color(0xFFECF1F7),
             contentColor = Color.Black
         ),
-    modifier = Modifier.fillMaxWidth().padding(20.dp) ) {
+    modifier = Modifier
+        .fillMaxWidth()
+        .padding(20.dp) ) {
 
     }
 }
