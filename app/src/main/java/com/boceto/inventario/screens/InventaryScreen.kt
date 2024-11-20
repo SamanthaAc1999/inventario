@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -101,7 +104,7 @@ fun layoutSearchItem(){
         )
         Spacer(modifier = Modifier.width(10.dp))
         Icon(
-            imageVector = Icons.Filled.AccountBox,
+            imageVector = Icons.Filled.Info,
             contentDescription = null,
             tint = Color.White
         )
@@ -118,7 +121,10 @@ fun CardItemInformation() {
       modifier = Modifier.fillMaxWidth().padding(20.dp)
   ) {
       Column {
-          Text(text = "NOMBRE DEL CONTENIDO")
+          Text(
+              text = "NOMBRE DEL CONTENIDO",
+              modifier = Modifier. padding(5.dp)
+          )
           Column (
               modifier = Modifier.padding(5.dp)
           ) {
