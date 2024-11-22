@@ -36,15 +36,17 @@ import com.boceto.inventario.ui.theme.InventarioTheme
 fun FormScreen() {
     Scaffold(
         topBar = {
-            TopAppBar(title = {
-                CenterAlignedTopAppBar(title = {
-                    Text(text = "Formulario Conteo")
-                }
-                )
-            },
+            TopAppBar(
+                title = {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(text = "Formulario Conteo")
+                        }
+                    )
+                },
                 navigationIcon = {
                     IconButton(
-                        onClick = {/* TODO */},
+                        onClick = { /* TODO */ },
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = Color(0xFF151635),
                         )
@@ -57,13 +59,17 @@ fun FormScreen() {
                 }
             )
         }
-    )
-    {
-        Column(modifier = Modifier.fillMaxSize().padding(it)) {
+    ) { paddingValues -> 
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
             FormList()
         }
     }
 }
+
 
 
 @Composable

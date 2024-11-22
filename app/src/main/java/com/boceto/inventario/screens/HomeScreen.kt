@@ -57,9 +57,7 @@ fun HomeScreen(){
             Card()
         }
     }
-
 }
-
 
 @Composable
 fun Card(){
