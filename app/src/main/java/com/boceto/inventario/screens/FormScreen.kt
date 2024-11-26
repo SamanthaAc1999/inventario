@@ -24,6 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,6 +78,8 @@ fun FormScreen() {
 
 @Composable
 fun FormList() {
+    var bodega: String by remember { mutableStateOf("") }
+    var seccion: String by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -83,8 +89,8 @@ fun FormList() {
        Text(text = "Bodega")
         Spacer(modifier = Modifier.height(10.dp))
       TextField(
-          value = "",
-          onValueChange = {},
+          value = bodega,
+          onValueChange = {bodega = it},
           modifier = Modifier.padding(2.dp).fillMaxWidth(),
           placeholder = {
               Text(
@@ -96,8 +102,8 @@ fun FormList() {
         Text(text = "Sección")
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = "",
-            onValueChange = {},
+            value = seccion,
+            onValueChange = {seccion = it},
             modifier = Modifier.padding(2.dp).fillMaxWidth(),
             placeholder = {
                 Text(

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +36,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -93,6 +98,7 @@ fun InventoryScreen() {
 
 @Composable
 fun layoutSearchItem(){
+    var codigoBarras: String by remember { mutableStateOf("") }
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -101,8 +107,8 @@ fun layoutSearchItem(){
         horizontalArrangement= Arrangement.SpaceEvenly
     ){
         TextField(
-            value = "",
-            onValueChange = {},
+            value = codigoBarras,
+            onValueChange = {codigoBarras = it},
             trailingIcon = {
                 Icon(imageVector = Icons.Filled.Search, contentDescription = null)
             },
@@ -115,7 +121,7 @@ fun layoutSearchItem(){
         )
         Spacer(modifier = Modifier.width(10.dp))
         Icon(
-            imageVector = Icons.Filled.Info,
+            imageVector = Icons.Filled.ShoppingCart,
             contentDescription = "Icon Camera",
             tint = Color.White,
         )
@@ -124,6 +130,7 @@ fun layoutSearchItem(){
 
 @Composable
 fun CardItemInformation() {
+    var cant: String by remember { mutableStateOf("") }
   Card (
       colors = CardDefaults.cardColors(
           containerColor = Color(0xFFECF1F7),
@@ -135,7 +142,7 @@ fun CardItemInformation() {
   ) {
       Column {
           Text(
-              text = "NOMBRE DEL CONTENIDO",
+              text = "NOMBRE DEL PRODUCTO",
               modifier = Modifier. padding(5.dp)
           )
           Column (
@@ -150,21 +157,22 @@ fun CardItemInformation() {
               ) {
                   Text(text = "Cant.")
                   TextField(
-                      value = "",
-                      onValueChange = {},
+                      value = cant,
+                      onValueChange = {cant = it},
                       modifier = Modifier
                           .height(30.dp)
                           .width(80.dp)
                   )
                   Spacer(modifier = Modifier.width(5.dp))
                   Button(
-                      onClick = {/*TODO*/ },
+                      onClick = { println(cant) },
                       colors = ButtonDefaults.buttonColors(
                           containerColor = Color(0xFF151635)
                       )
                   ) {
                       Text(text = "Ok")
                   }
+                  Text(text = cant)
               }
           }
       }
