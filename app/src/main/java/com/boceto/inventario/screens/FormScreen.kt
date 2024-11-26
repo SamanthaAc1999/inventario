@@ -57,7 +57,8 @@ fun FormScreen() {
                     ) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowLeft,
-                            contentDescription = null
+                            contentDescription = null,
+
                         )
                     }
                 }
@@ -114,7 +115,7 @@ fun FormList() {
         )
         Spacer(modifier = Modifier.height(30.dp))
         Button(
-            onClick = {/*TODO*/},
+            onClick = { println(bodega) },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF151635)
             ),
