@@ -9,14 +9,14 @@ interface InventoryApiService {
     @GET("/products")
     fun getProducts(): Call<ProductResponse>
 
-    @POST("/formulario")
-    fun sendListForm(@Body formRequest: FormRequest): Call<ProductResponse>
+    @POST("/formRequest")
+    fun sendListForm(@Body formRequest: FormRequest): Call<FormRequest>
 
-    @POST("/producto")
-    fun sendCodeProduct(@Body producto: Producto): Call<ProductResponse>
+    @POST("/infoProduct")
+    fun sendCodeProduct(@Body infoProduct: InfoProduct): Call<InfoProduct>
 
-    @POST("/guardar")
-    fun sendList(@Body guardar: Guardar): Call<ProductResponse>
+    @POST("/saveList")
+    fun sendList(@Body saveList: SaveList): Call<SaveList>
 }
 
 data class ProductResponse(
@@ -29,14 +29,14 @@ data class ProductResponse(
 
 data class FormRequest(
     val bodega: String,
-    val seccion: String
+    val sec: String
 )
 
-data class Producto(
+data class InfoProduct(
     val code: Int
 )
 
-data class Guardar(
+data class SaveList(
     val id: Int,
     val name: String,
     val quantity: Int

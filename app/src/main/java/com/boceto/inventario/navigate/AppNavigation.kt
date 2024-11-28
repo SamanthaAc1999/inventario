@@ -12,7 +12,7 @@ import com.boceto.inventario.screens.LoginScreen
 fun AppNavigation () {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.FormScreen.routes) {
+    NavHost(navController = navController, startDestination = Routes.InventoryScreen.routes) {
         composable(Routes.LoginScreen.routes){
             LoginScreen()
         }
@@ -22,11 +22,11 @@ fun AppNavigation () {
         }
 
         composable(Routes.FormScreen.routes){
-            FormScreen()
+            FormScreen(navController)
         }
 
         composable(Routes.InventoryScreen.routes){
-            InventoryScreen()
+            InventoryScreen(navController)
         }
     }
 }

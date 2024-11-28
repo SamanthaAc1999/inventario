@@ -1,6 +1,11 @@
 package com.boceto.inventario.screens
 
+import android.content.Intent
 import android.graphics.drawable.Icon
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,15 +50,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.boceto.inventario.ui.theme.InventarioTheme
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.boceto.inventario.ScannerActivity
+import com.boceto.inventario.navigate.Routes
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryScreen() {
+fun InventoryScreen(navHostController: NavHostController) {
     Scaffold (
         topBar = {
             TopAppBar(title = {
@@ -64,7 +74,9 @@ fun InventoryScreen() {
             },
                 navigationIcon = {
                     IconButton(
-                        onClick = {/*TODO*/},
+                        onClick = {
+                            navHostController.navigate(Routes.FormScreen.routes)
+                        },
                         colors = IconButtonDefaults.iconButtonColors(containerColor = Color(0xFF151635), contentColor = Color.White),
                         modifier = Modifier.size(48.dp)
                     ) {
@@ -98,6 +110,14 @@ fun InventoryScreen() {
 
 @Composable
 fun layoutSearchItem(){
+    val context = LocalContext.current
+    val scannerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            val data = result.data
+            val scanResult = data?.getStringExtra("SCAN_RESULT")
+            println(scanResult)
+        }
+    }
     var codigoBarras: String by remember { mutableStateOf("") }
     Row (
         modifier = Modifier
@@ -124,6 +144,10 @@ fun layoutSearchItem(){
             imageVector = Icons.Filled.ShoppingCart,
             contentDescription = "Icon Camera",
             tint = Color.White,
+            modifier = Modifier.clickable {
+                val intent = Intent(context,ScannerActivity::class.java)
+                scannerLauncher.launch(intent)
+            }
         )
     }
 }
@@ -197,6 +221,6 @@ fun CardTableItems(){
 @Composable
 fun InventoryScreenPreview(){
     InventarioTheme {
-        InventoryScreen()
+        InventoryScreen(rememberNavController())
     }
 }

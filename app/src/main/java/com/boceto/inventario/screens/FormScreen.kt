@@ -1,15 +1,11 @@
 package com.boceto.inventario.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Button
@@ -33,11 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.ui.theme.InventarioTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormScreen() {
+fun FormScreen(navHostController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -50,7 +49,9 @@ fun FormScreen() {
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = { /* TODO */ },
+                        onClick = {
+                                navHostController.navigate(Routes.HomeScreen.routes)
+                        },
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = Color(0xFF151635),
                         )
@@ -70,17 +71,17 @@ fun FormScreen() {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            FormList()
+            FormList(rememberNavController())
         }
     }
 }
 
-
-
 @Composable
-fun FormList() {
+fun FormList(navHostController: NavHostController) {
     var bodega: String by remember { mutableStateOf("") }
     var seccion: String by remember { mutableStateOf("") }
+    var showAlert by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -93,11 +94,7 @@ fun FormList() {
           value = bodega,
           onValueChange = {bodega = it},
           modifier = Modifier.padding(2.dp).fillMaxWidth(),
-          placeholder = {
-              Text(
-                  text = "Cuenca"
-              )
-          }
+          placeholder = { Text(text = "Cuenca") }
       )
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Sección")
@@ -106,16 +103,17 @@ fun FormList() {
             value = seccion,
             onValueChange = {seccion = it},
             modifier = Modifier.padding(2.dp).fillMaxWidth(),
-            placeholder = {
-                Text(
-                    text = "A-1"
-                )
-            }
-
+            placeholder = { Text(text = "A-1")}
         )
         Spacer(modifier = Modifier.height(30.dp))
         Button(
-            onClick = { println(bodega) },
+            onClick = {
+                if (bodega.isNotBlank() && seccion.isNotBlank()) {
+                    navHostController.navigate(Routes.InventoryScreen.routes)
+                } else {
+                    println("error")
+                }
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF151635)
             ),
@@ -128,11 +126,10 @@ fun FormList() {
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun HomePreviewScreen() {
     InventarioTheme {
-        FormScreen()
+        FormScreen(rememberNavController())
     }
 }
