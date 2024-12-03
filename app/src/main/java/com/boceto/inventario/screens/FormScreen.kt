@@ -59,7 +59,6 @@ fun FormScreen(navHostController: NavHostController) {
                         Icon(
                             imageVector = Icons.Filled.KeyboardArrowLeft,
                             contentDescription = null,
-
                         )
                     }
                 }

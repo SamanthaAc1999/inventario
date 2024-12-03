@@ -1,12 +1,9 @@
 package com.boceto.inventario.screens
 
 import android.content.Intent
-import android.graphics.drawable.Icon
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,17 +13,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,11 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.boceto.inventario.ui.theme.InventarioTheme
 import androidx.compose.ui.unit.dp
@@ -59,7 +49,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ScannerActivity
 import com.boceto.inventario.navigate.Routes
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,7 +83,7 @@ fun InventoryScreen(navHostController: NavHostController) {
             .padding(it)) {
             layoutSearchItem()
             Column (
-                modifier = Modifier.padding(horizontal = 20.dp)
+                modifier = Modifier.padding(horizontal = 15.dp)
             ) {
                 Spacer(modifier =Modifier.height(20.dp))
                 CardItemInformation()
@@ -103,7 +92,6 @@ fun InventoryScreen(navHostController: NavHostController) {
                 Spacer(modifier =Modifier.height(20.dp))
                 CardTableItems()
             }
-
         }
     }
 }
@@ -213,7 +201,6 @@ fun CardTableItems(){
     modifier = Modifier
         .fillMaxWidth()
         .padding(20.dp) ) {
-
     }
 }
 
@@ -224,3 +211,4 @@ fun InventoryScreenPreview(){
         InventoryScreen(rememberNavController())
     }
 }
+
