@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.boceto.inventario.ui.theme.InventarioTheme
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ScannerActivity
@@ -143,53 +145,92 @@ fun layoutSearchItem(){
 @Composable
 fun CardItemInformation() {
     var cant: String by remember { mutableStateOf("") }
-  Card (
-      colors = CardDefaults.cardColors(
-          containerColor = Color(0xFFECF1F7),
-          contentColor = Color.Black
-      ),
-      modifier = Modifier
-          .fillMaxWidth()
-          .padding(20.dp)
-  ) {
-      Column {
-          Text(
-              text = "NOMBRE DEL PRODUCTO",
-              modifier = Modifier. padding(5.dp)
-          )
-          Column (
-              modifier = Modifier.padding(5.dp)
-          ) {
-              Text(text = "")
-              Text(text = "Saldo: 55")
-              Text(text = "Costo: 55")
-              Spacer(modifier = Modifier.width(10.dp))
-              Row (
-                  verticalAlignment = Alignment.CenterVertically
-              ) {
-                  Text(text = "Cant.")
-                  TextField(
-                      value = cant,
-                      onValueChange = {cant = it},
-                      modifier = Modifier
-                          .height(30.dp)
-                          .width(80.dp)
-                  )
-                  Spacer(modifier = Modifier.width(5.dp))
-                  Button(
-                      onClick = { println(cant) },
-                      colors = ButtonDefaults.buttonColors(
-                          containerColor = Color(0xFF151635)
-                      )
-                  ) {
-                      Text(text = "Ok")
-                  }
-                  Text(text = cant)
-              }
-          }
-      }
-  }
+
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFECF1F7),
+            contentColor = Color.Black
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(20.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "Nombre del producto",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Código:", fontSize = 16.sp)
+                Text(text = "7861024611060", fontSize = 16.sp)
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Saldo:", fontSize = 16.sp)
+                Text(text = "55", fontSize = 16.sp)
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            ) {
+                Text(text = "Cant:", fontSize = 16.sp)
+
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextField(
+                    value = cant,
+                    onValueChange = { cant = it },
+                    label = { Text("Ingrese Cantidad", fontSize = 14.sp) },
+                    singleLine = true,
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(50.dp)
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            ) {
+                Button(
+                    onClick = { println("Cantidad agregada: $cant") },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Agr.", color = Color.White, fontSize = 14.sp)
+                }
+
+                Button(
+                    onClick = { cant = "" },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7E7D98)),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(text = "Reing.", color = Color.White, fontSize = 14.sp)
+                }
+            }
+        }
+    }
 }
+
 
 @Composable
 fun CardTableItems(){
