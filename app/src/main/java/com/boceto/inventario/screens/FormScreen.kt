@@ -50,7 +50,7 @@ fun FormScreen(navHostController: NavHostController) {
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                                navHostController.navigate(Routes.HomeScreen.routes)
+                            navHostController.navigate(Routes.HomeScreen.routes)
                         },
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = Color(0xFF151635),
@@ -64,7 +64,7 @@ fun FormScreen(navHostController: NavHostController) {
                 }
             )
         }
-    ) { paddingValues -> 
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +79,6 @@ fun FormScreen(navHostController: NavHostController) {
 fun FormList(navHostController: NavHostController) {
     var bodega: String by remember { mutableStateOf("") }
     var seccion: String by remember { mutableStateOf("") }
-    var showAlert by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -87,22 +86,20 @@ fun FormList(navHostController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.Start,
     ) {
-       Text(text = "Bodega")
+        Text(text = "Bodega")
         Spacer(modifier = Modifier.height(10.dp))
-      TextField(
-          value = bodega,
-          onValueChange = {bodega = it},
-          modifier = Modifier.padding(2.dp).fillMaxWidth(),
-          placeholder = { Text(text = "Cuenca") }
-      )
+        TextField(
+            value = bodega,
+            onValueChange = {bodega = it},
+            modifier = Modifier.padding(2.dp).fillMaxWidth(),
+        )
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Sección")
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = seccion,
             onValueChange = {seccion = it},
-            modifier = Modifier.padding(2.dp).fillMaxWidth(),
-            placeholder = { Text(text = "A-1")}
+            modifier = Modifier.padding(2.dp).fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(30.dp))
         Button(
