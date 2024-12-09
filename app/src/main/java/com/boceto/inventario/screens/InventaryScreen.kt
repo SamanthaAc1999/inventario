@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -118,12 +117,6 @@ fun ScanField() {
         onValueChange = { scanCode = it },
         placeholder = { Text(text = "Código Escaneado") },
         singleLine = true,
-        //leadingIcon = {
-         //   Icon(
-          //      imageVector = Icons.Default.Check,
-        //        contentDescription = "Icono de Escaneo"
-         //   )
-        //},
         modifier = Modifier
             .fillMaxWidth()
             .semantics { contentDescription = "Campo para escanear código" }

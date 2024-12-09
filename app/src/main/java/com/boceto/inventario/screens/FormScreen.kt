@@ -23,6 +23,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -52,9 +53,7 @@ fun FormScreen(navHostController: NavHostController) {
             TopAppBar(
                 title = {
                     CenterAlignedTopAppBar(
-                        title = {
-                            Text(text = "Formulario Conteo")
-                        }
+                        title = { Text(text = "Formulario Conteo", style = MaterialTheme.typography.titleMedium) },
                     )
                 },
                 navigationIcon = {
@@ -120,7 +119,7 @@ fun FormList(navHostController: NavHostController) {
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.fillMaxWidth().padding(12.dp)
             ) {
-                listOf("Cuenca", "Guayaquil", "Quito").forEach { ciudad ->
+                listOf("Distribuidora", "Feria Libre", "Mega Americas", "Mega Chaullabamba", "Mega Remigio", "Mega Ricaurte", "Mega Saraguro").forEach { ciudad ->
                     DropdownMenuItem(
                         text = { Text(ciudad) },
                         onClick = {

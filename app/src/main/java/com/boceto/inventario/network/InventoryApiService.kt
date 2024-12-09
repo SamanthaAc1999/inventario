@@ -6,6 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface InventoryApiService {
+    @GET("warehouse/ObtenerSucursales")
+    fun getWarenhouse(): Call<WarenhouseResponse>
+
     @GET("/products")
     fun getProducts(): Call<ProductResponse>
 
@@ -18,6 +21,11 @@ interface InventoryApiService {
     @POST("/saveList")
     fun sendList(@Body saveList: SaveList): Call<SaveList>
 }
+
+data class WarenhouseResponse(
+    val whsCode: String,
+    val whsName: String
+)
 
 data class ProductResponse(
     val id: Int,
