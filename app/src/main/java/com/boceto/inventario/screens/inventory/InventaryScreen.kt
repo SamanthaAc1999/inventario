@@ -1,4 +1,4 @@
-package com.boceto.inventario.screens
+package com.boceto.inventario.screens.inventory
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
@@ -14,14 +16,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ui.theme.InventarioTheme
@@ -111,6 +117,12 @@ fun InventoryContent(modifier: Modifier = Modifier) {
 @Composable
 fun ScanField() {
     var scanCode by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus() // Solicita el foco al iniciar
+    }
 
     OutlinedTextField(
         value = scanCode,
@@ -119,7 +131,20 @@ fun ScanField() {
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .semantics { contentDescription = "Campo para escanear código" }
+            .focusRequester(focusRequester) // Conecta el focusRequester
+            .onFocusChanged { state ->
+                if (!state.isFocused) {
+                    focusRequester.requestFocus() // Recupera el foco si se pierde
+                }
+            },
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                focusManager.clearFocus() // Opcional: limpiar el foco con acción "Done"
+            }
+        )
     )
 }
 
@@ -177,7 +202,7 @@ fun CardItemInformation() {
                     .height(56.dp),
                 shape = RoundedCornerShape(8.dp),
 
-            )
+                )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,

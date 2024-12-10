@@ -79,7 +79,7 @@ fun FormScreen(navHostController: NavHostController) {
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            FormList(rememberNavController())
+            FormList(navHostController)
         }
     }
 }
@@ -150,13 +150,7 @@ fun FormList(navHostController: NavHostController) {
         Spacer(modifier = Modifier.height(30.dp))
         Button(
             onClick = {
-                val seccionNum = seccion.toIntOrNull()
-                if (bodega.isNotEmpty() && seccionNum != null && seccionNum in 1..99) {
-                    navHostController.navigate(Routes.InventoryScreen.routes)
-                } else {
-                    println("Error: Selecciona una bodega y una sección válida (1-99).")
-                }
-
+                navHostController.navigate(Routes.InventoryScreen.routes)
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF151635)

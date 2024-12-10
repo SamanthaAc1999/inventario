@@ -5,14 +5,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.screens.FormScreen
 import com.boceto.inventario.screens.HomeScreen
-import com.boceto.inventario.screens.InventoryScreen
+import com.boceto.inventario.screens.inventory.InventoryScreen
 import com.boceto.inventario.screens.LoginScreen
 
 @Composable
 fun AppNavigation () {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.InventoryScreen.routes) {
+    NavHost(navController = navController, startDestination = Routes.HomeScreen.routes) {
         composable(Routes.LoginScreen.routes){
             LoginScreen()
         }
