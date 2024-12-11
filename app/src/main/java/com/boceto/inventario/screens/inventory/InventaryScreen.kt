@@ -121,7 +121,7 @@ fun ScanField() {
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus() // Solicita el foco al iniciar
+        focusRequester.requestFocus()
     }
 
     OutlinedTextField(
@@ -131,10 +131,10 @@ fun ScanField() {
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .focusRequester(focusRequester) // Conecta el focusRequester
+            .focusRequester(focusRequester)
             .onFocusChanged { state ->
                 if (!state.isFocused) {
-                    focusRequester.requestFocus() // Recupera el foco si se pierde
+                    focusRequester.requestFocus()
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -142,7 +142,7 @@ fun ScanField() {
         ),
         keyboardActions = KeyboardActions(
             onDone = {
-                focusManager.clearFocus() // Opcional: limpiar el foco con acción "Done"
+                focusManager.clearFocus()
             }
         )
     )

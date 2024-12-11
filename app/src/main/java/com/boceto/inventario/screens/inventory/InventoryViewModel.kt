@@ -3,13 +3,15 @@ package com.boceto.inventario.screens.inventory
 import androidx.lifecycle.ViewModel
 import com.boceto.inventario.network.ProductResponse
 import com.boceto.inventario.network.RetrofitClient
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
-
+@HiltViewModel
 class InventoryViewModel @Inject constructor(): ViewModel() {
 
     private val _uiState = MutableStateFlow(InventoryUiState())
