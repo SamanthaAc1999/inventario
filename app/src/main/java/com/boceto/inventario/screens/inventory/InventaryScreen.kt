@@ -215,7 +215,11 @@ fun CardItemInformation() {
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Agregar", color = Color.White, fontSize = 16.sp)
+                    Text(
+                        text = "Agregar",
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
                 }
 
                 OutlinedButton(
@@ -224,7 +228,10 @@ fun CardItemInformation() {
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(text = "Reiniciar", color = Color(0xFF7E7D98), fontSize = 16.sp)
+                    Text(
+                        text = "Reiniciar",
+                        color = Color(0xFF7E7D98),
+                        fontSize = 16.sp)
                 }
             }
         }
@@ -426,8 +433,7 @@ fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
 }
 
 suspend fun fetchSearchResults(query: String): List<String> {
-    // Simula una solicitud fetch
-    delay(500) // Simular tiempo de red
+    delay(500)
     return if (query.isNotBlank()) {
         listOf("Producto 1", "Producto 2", "Producto 3", "Item 2", "Item 1").filter { it.contains(query, ignoreCase = true) }
     } else {

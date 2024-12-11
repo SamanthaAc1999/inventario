@@ -24,7 +24,7 @@ data class ProductResponse(
     @SerializedName("message")
     val messages: String,
     @SerializedName("value")
-    val value: List<String>,
+    val value: List<ValueItem>,
 )
 
 data class ValueItem(
