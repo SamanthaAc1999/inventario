@@ -175,12 +175,12 @@ fun CardItemInformation() {
                     color = Color(0xFF151635)
                 )
             )
-            Text(
-                text = "Código Barras: 7861024611060",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.Gray
-                )
-            )
+          //  Text(
+             //   text = "Código Barras: 7861024611060",
+            //    style = MaterialTheme.typography.bodyMedium.copy(
+            //        color = Color.Gray
+            //    )
+          //  )
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -229,7 +229,7 @@ fun CardItemInformation() {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Reiniciar",
+                        text = "Reingresar",
                         color = Color(0xFF7E7D98),
                         fontSize = 16.sp)
                 }
@@ -240,7 +240,7 @@ fun CardItemInformation() {
 
 @Composable
 fun InfoText(label: String, value: String) {
-    Column {
+    Row {
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium.copy(color = Color.Gray)
