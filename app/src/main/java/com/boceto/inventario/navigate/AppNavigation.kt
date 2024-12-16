@@ -13,20 +13,21 @@ fun AppNavigation () {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Routes.HomeScreen.routes) {
-        composable(Routes.LoginScreen.routes){
+        composable(Routes.LoginScreen.routes) {
             LoginScreen()
         }
 
-        composable(Routes.HomeScreen.routes){
+        composable(Routes.HomeScreen.routes) {
             HomeScreen(navController)
         }
 
-        composable(Routes.FormScreen.routes){
+        composable(Routes.FormScreen.routes) {
             FormScreen(navController)
         }
 
-        composable(Routes.InventoryScreen.routes){
-            InventoryScreen(navController)
+        composable(Routes.InventoryScreen.routes) { backStackEntry ->
+            val idBodega = backStackEntry.arguments?.getString("id_bodega") ?: "00"
+            InventoryScreen(navController, idBodega)
         }
     }
 }

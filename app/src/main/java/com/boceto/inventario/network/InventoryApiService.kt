@@ -10,6 +10,7 @@ import retrofit2.http.Query
 
 interface InventoryApiService {
     @GET("/items/{codeBar}/{codeWareHouse}")
+
     fun getProducts(
         @Path("codeBar")
         codeBar: String,
@@ -35,7 +36,7 @@ data class ValueItem(
     @SerializedName("saldo")
     val saldo: Int,
     @SerializedName("costo")
-    val costo: Int,
+    val costo: Double,
     @SerializedName("cantidad")
     val cantidad: Int,
 )

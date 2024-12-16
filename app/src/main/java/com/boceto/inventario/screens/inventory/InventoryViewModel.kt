@@ -1,5 +1,6 @@
 package com.boceto.inventario.screens.inventory
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.boceto.inventario.network.ProductResponse
 import com.boceto.inventario.network.RetrofitClient
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,8 +42,15 @@ class InventoryViewModel @Inject constructor(): ViewModel() {
             }
 
             override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
-                TODO("Not yet implemented")
+                Log.e("API_ERROR", "Error al obtener productos: ${t.message}", t)
+
+                if (t is IOException) {
+                    Log.e("API_ERROR", "Error de conexión: ${t.message}")
+                } else {
+                    Log.e("API_ERROR", "Error desconocido: ${t.message}")
+                }
             }
+
 
         })
     }

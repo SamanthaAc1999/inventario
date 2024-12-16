@@ -25,27 +25,44 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ui.theme.InventarioTheme
 import com.boceto.inventario.navigate.Routes
+import com.boceto.inventario.network.ValueItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryScreen(navHostController: NavHostController) {
+fun InventoryScreen(
+    navHostController: NavHostController,
+    idBodega: String,
+    viewModel: InventoryViewModel = hiltViewModel()
+) {
     var isDialogVisible by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+    when{
+        uiState.notFoundProduct -> {
+            //TODO: Show dialog not found product
+        }
+    }
 
     Scaffold(
         topBar = {
             InventoryTopAppBar(navHostController, onSearchClick = { isDialogVisible = true })
         },
         content = { paddingValues ->
-            InventoryContent(modifier = Modifier.padding(paddingValues))
+            InventoryContent(
+                modifier = Modifier.padding(paddingValues),
+                idBodega,
+                uiState
+            )
         }
     )
 
@@ -100,7 +117,11 @@ fun InventoryTopAppBar(
 }
 
 @Composable
-fun InventoryContent(modifier: Modifier = Modifier) {
+fun InventoryContent(
+    modifier: Modifier = Modifier,
+    idBodega: String,
+    uiState: InventoryUiState
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -108,14 +129,21 @@ fun InventoryContent(modifier: Modifier = Modifier) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField()
-        CardItemInformation()
+        ScanField(idBodega)
+        if (uiState.value.isNotEmpty()) {
+            CardItemInformation(uiState.value[0])
+        } else {
+            Text("No hay información disponible", color = Color.Gray)
+        }
         CardTableItems()
     }
 }
 
 @Composable
-fun ScanField() {
+fun ScanField(
+    idBodega: String,
+    viewModel: InventoryViewModel = hiltViewModel()
+) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -134,6 +162,9 @@ fun ScanField() {
             .focusRequester(focusRequester)
             .onFocusChanged { state ->
                 if (!state.isFocused) {
+                    if (scanCode.isNotEmpty()) {
+                        viewModel.getProduct(scanCode, idBodega)
+                    }
                     focusRequester.requestFocus()
                 }
             },
@@ -149,7 +180,7 @@ fun ScanField() {
 }
 
 @Composable
-fun CardItemInformation() {
+fun CardItemInformation(valueItem: ValueItem) {
     var cant by remember { mutableStateOf("") }
 
     Card(
@@ -169,25 +200,25 @@ fun CardItemInformation() {
         ) {
             // Título del producto
             Text(
-                text = "Cereal Integral",
+                text = valueItem.name,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF151635)
                 )
             )
-          //  Text(
-             //   text = "Código Barras: 7861024611060",
-            //    style = MaterialTheme.typography.bodyMedium.copy(
-            //        color = Color.Gray
-            //    )
-          //  )
+            Text(
+              text = valueItem.code,
+               style = MaterialTheme.typography.bodyMedium.copy(
+                   color = Color.Gray
+               )
+          )
 
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                InfoText(label = "Saldo", value = "56")
-                InfoText(label = "Contado", value = "56")
+                InfoText(label = "Saldo: ", value =valueItem.saldo.toString())
+                InfoText(label = "Contado: ", value =valueItem.costo.toString())
             }
 
             OutlinedTextField(
@@ -196,12 +227,12 @@ fun CardItemInformation() {
                 label = { Text("Ingrese cantidad") },
                 placeholder = { Text("Ej: 10") },
                 singleLine = true,
-
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number
+                ),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(8.dp),
-
                 )
 
             Row(
@@ -445,6 +476,6 @@ suspend fun fetchSearchResults(query: String): List<String> {
 @Composable
 fun InventoryScreenPreview() {
     InventarioTheme {
-        InventoryScreen(rememberNavController())
+        InventoryScreen(rememberNavController(), idBodega = "")
     }
 }
