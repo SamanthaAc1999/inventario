@@ -148,9 +148,9 @@ fun ScanField(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
+    //LaunchedEffect(Unit) {
+     //   focusRequester.requestFocus()
+    //}
 
     OutlinedTextField(
         value = scanCode,
@@ -159,13 +159,13 @@ fun ScanField(
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-            .focusRequester(focusRequester)
+           // .focusRequester(focusRequester)
             .onFocusChanged { state ->
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
                         viewModel.getProduct(scanCode, idBodega)
                     }
-                    focusRequester.requestFocus()
+                   // focusRequester.requestFocus()
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
