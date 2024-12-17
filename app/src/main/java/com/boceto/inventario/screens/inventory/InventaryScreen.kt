@@ -3,6 +3,7 @@ package com.boceto.inventario.screens.inventory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -67,7 +69,11 @@ fun InventoryScreen(
     )
 
     if (isDialogVisible) {
-        SearchDialog(onDismiss = { isDialogVisible = false })
+        SearchDialog(
+            idBodega = idBodega,
+            onDismiss = { isDialogVisible = false }
+        )
+
     }
 }
 
@@ -130,8 +136,8 @@ fun InventoryContent(
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         ScanField(idBodega)
-        if (uiState.value.isNotEmpty()) {
-            CardItemInformation(uiState.value[0])
+        if (uiState.value != null) {
+            CardItemInformation(uiState.value)
         } else {
             Text("No hay información disponible", color = Color.Gray)
         }
@@ -142,15 +148,16 @@ fun InventoryContent(
 @Composable
 fun ScanField(
     idBodega: String,
-    viewModel: InventoryViewModel = hiltViewModel()
+    viewModel: InventoryViewModel = hiltViewModel(),
+
 ) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    //LaunchedEffect(Unit) {
-     //   focusRequester.requestFocus()
-    //}
+   LaunchedEffect(Unit) {
+    focusRequester.requestFocus()
+   }
 
     OutlinedTextField(
         value = scanCode,
@@ -159,13 +166,13 @@ fun ScanField(
         singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
-           // .focusRequester(focusRequester)
+            .focusRequester(focusRequester)
             .onFocusChanged { state ->
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
                         viewModel.getProduct(scanCode, idBodega)
                     }
-                   // focusRequester.requestFocus()
+                    focusManager.moveFocus(FocusDirection.Next)
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -182,6 +189,8 @@ fun ScanField(
 @Composable
 fun CardItemInformation(valueItem: ValueItem) {
     var cant by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     Card(
         colors = CardDefaults.cardColors(
@@ -231,7 +240,11 @@ fun CardItemInformation(valueItem: ValueItem) {
                     keyboardType = KeyboardType.Number
                 ),
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { (it.isFocused)  }
+                    .focusable()
+                ,
                 shape = RoundedCornerShape(8.dp),
                 )
 
@@ -304,7 +317,6 @@ fun CardTableItems() {
         modifier = Modifier
             .fillMaxWidth()
             .border(1.dp, color = Color(0xFF151635), shape = RoundedCornerShape(12.dp)),
-        shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -369,16 +381,20 @@ fun TableItemRow(item: TableItem) {
         Divider(color = Color(0xFFDADADA), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
     }
 }
-
 @Composable
-fun SearchDialog(onDismiss: () -> Unit) {
+fun SearchDialog(
+    idBodega: String,
+    onDismiss: () -> Unit,
+    viewModel: SeachViewModel = hiltViewModel()
+) {
     var searchQuery by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
+    var searchResults by remember { mutableStateOf<List<ValueItem>>(emptyList()) }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            onDismiss() // Llamamos a la función onDismiss
+        },
         title = { Text(text = "Buscar Producto") },
         text = {
             Column {
@@ -394,51 +410,28 @@ fun SearchDialog(onDismiss: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            isLoading = true
-                            // Simular tiempo de búsqueda
-                            delay(1000)
-                            searchResults = fetchSearchResults(searchQuery)
-                            isLoading = false
-                        }
+                        viewModel.getProducts(searchQuery, idBodega)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = searchQuery.isNotBlank()
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Buscando...", color = Color.White)
-                    } else {
-                        Text(text = "Buscar", color = Color.White)
-                    }
+                    Text(text = "Buscar", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                if (searchResults.isNotEmpty()) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                } else if (searchResults.isNotEmpty()) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        items(searchResults) { result ->
-                            SearchResultItem(result, onResultSelected = {
-                                println("Seleccionado: $it")
-                                onDismiss()
-                            })
+                        items(searchResults) { item ->
+                            // Aquí se pueden mostrar los resultados de búsqueda
+                            Text(text = item.name)
                         }
                     }
                 } else {
-                    if (!isLoading && searchQuery.isNotBlank()) {
-                        Text(
-                            text = "No se encontraron resultados.",
-                            color = Color.Gray,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                        )
-                    }
+                    Text(text = "No se encontraron resultados", color = Color.Gray)
                 }
             }
         },
@@ -446,8 +439,7 @@ fun SearchDialog(onDismiss: () -> Unit) {
             TextButton(onClick = onDismiss) {
                 Text("Cerrar")
             }
-        },
-        shape = RoundedCornerShape(16.dp)
+        }
     )
 }
 
@@ -463,14 +455,7 @@ fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
     }
 }
 
-suspend fun fetchSearchResults(query: String): List<String> {
-    delay(500)
-    return if (query.isNotBlank()) {
-        listOf("Producto 1", "Producto 2", "Producto 3", "Item 2", "Item 1").filter { it.contains(query, ignoreCase = true) }
-    } else {
-        emptyList()
-    }
-}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

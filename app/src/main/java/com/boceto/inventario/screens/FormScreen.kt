@@ -23,7 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.ui.theme.InventarioTheme
 
-data class Bodega(val id: Int, val nombre: String)
+data class Bodega(val id: String, val nombre: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,16 +67,17 @@ fun FormScreen(navHostController: NavHostController) {
 @Composable
 fun FormList(navHostController: NavHostController) {
     val bodegas = listOf(
-        Bodega(1, "Distribuidora"),
-        Bodega(2, "Feria Libre"),
-        Bodega(3, "Mega Americas"),
-        Bodega(4, "Mega Chaullabamba"),
-        Bodega(5, "Mega Remigio"),
-        Bodega(6, "Mega Ricaurte"),
-        Bodega(7, "Mega Saraguro")
+        Bodega("01", "Distribuidora"),
+        Bodega("02", "Feria Libre"),
+        Bodega("03", "Mega Americas"),
+        Bodega("04", "Mega Chaullabamba"),
+        Bodega("05", "Mega Remigio"),
+        Bodega("06", "Mega Ricaurte"),
+        Bodega("07", "Mega Saraguro")
     )
 
-    var selectedBodegaId by remember { mutableStateOf<Int?>(null) }
+
+    var selectedBodegaId by remember { mutableStateOf<String?>(null) }
     var selectedBodegaNombre by remember { mutableStateOf("") }
     var seccion: String by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }

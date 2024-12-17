@@ -5,39 +5,39 @@ import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface InventoryApiService {
-    @GET("/items/porbodegacodigobarra/{codeBar}/{whsCode}")
+interface SearchApiService {
+    @GET("/items/porbodeganombreitem/{itemName}/{whsCode}")
 
-    fun getProducts(
-        @Path("codeBar")
-        codeBar: String,
+    fun getProductsName(
+        @Path("itemName")
+        itemName: String,
         @Path("whsCode")
         whsCode: String
-    ): Call<ProductResponse>
+    ): Call<SearchResponse>
 }
 
-data class ProductResponse(
+data class SearchResponse(
     @SerializedName("rc")
     val rc: Int,
     @SerializedName("message")
     val messages: String,
     @SerializedName("value")
-    val value: ValueItem,
+    val value: List<ValueList>,
 )
 
-data class ValueItem(
+data class ValueList(
     @SerializedName("codigoSAP")
     val code: String,
     @SerializedName("nombreSAP")
     val name: String,
     @SerializedName("codigoBarra")
-    val codeBarP: String,
+    val codeBars: Int,
     @SerializedName("tieneIVA")
     val iva: Boolean,
     @SerializedName("unidadInventario")
     val unidad: String,
     @SerializedName("saldo")
-    val saldo: Int,
+    val saldo: Double,
     @SerializedName("costo")
     val costo: Double,
 )
