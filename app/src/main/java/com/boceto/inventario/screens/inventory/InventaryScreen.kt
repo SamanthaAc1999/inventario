@@ -1,8 +1,10 @@
 package com.boceto.inventario.screens.inventory
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,10 +19,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
@@ -227,7 +231,7 @@ fun CardItemInformation(valueItem: ValueItem) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InfoText(label = "Saldo: ", value =valueItem.saldo.toString())
-                InfoText(label = "Contado: ", value =valueItem.costo.toString())
+               // InfoText(label = "Contado: ", value =valueItem.costo.toString())
             }
 
             OutlinedTextField(
@@ -242,7 +246,7 @@ fun CardItemInformation(valueItem: ValueItem) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusRequester(focusRequester)
-                    .onFocusChanged { (it.isFocused)  }
+                    .onFocusChanged { (it.isFocused) }
                     .focusable()
                 ,
                 shape = RoundedCornerShape(8.dp),
@@ -387,14 +391,13 @@ fun SearchDialog(
     onDismiss: () -> Unit,
     viewModel: SeachViewModel = hiltViewModel()
 ) {
+    // Obtenemos el estado actual del ViewModel usando collectAsState
+    val uiState = viewModel.uiState.collectAsState().value
+
     var searchQuery by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var searchResults by remember { mutableStateOf<List<ValueItem>>(emptyList()) }
 
     AlertDialog(
-        onDismissRequest = {
-            onDismiss() // Llamamos a la función onDismiss
-        },
+        onDismissRequest = { onDismiss() },
         title = { Text(text = "Buscar Producto") },
         text = {
             Column {
@@ -403,9 +406,7 @@ fun SearchDialog(
                     onValueChange = { searchQuery = it },
                     placeholder = { Text(text = "Ingrese término de búsqueda") },
                     singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { contentDescription = "Campo de búsqueda" }
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
@@ -418,20 +419,55 @@ fun SearchDialog(
                     Text(text = "Buscar", color = Color.White)
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                if (isLoading) {
+                // Indicador de carga
+                if (uiState.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                } else if (searchResults.isNotEmpty()) {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(searchResults) { item ->
-                            // Aquí se pueden mostrar los resultados de búsqueda
-                            Text(text = item.name)
-                        }
+                }
+                // Mostrar resultados o mensaje de error
+                when {
+                    uiState.notFoundProduct -> {
+                        Text(
+                            text = uiState.messageNotFoundProduct,
+                            color = Color.Red,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
                     }
-                } else {
-                    Text(text = "No se encontraron resultados", color = Color.Gray)
+                    uiState.value.isNotEmpty() -> {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(uiState.value) { item ->
+                                Text(
+                                    text = item.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .drawBehind {
+                                            drawLine(
+                                                color = Color(0xFFA6AEBF),
+                                                start = Offset(0f, size.height),
+                                                end = Offset(size.width, size.height),
+                                                strokeWidth = 1.dp.toPx()
+                                            )
+                                        }
+                                        .clickable {
+                                            Log.d("Producto Seleccionado", "Nombre: ${item.name}, Código: ${item.code}")
+                                        }
+                                        .padding(16.dp),
+                                    color = Color.Black,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+
+                    }
+                    else -> {
+                        Text(
+                            text = "No se encontraron resultados",
+                            color = Color.Gray,
+                            modifier = Modifier.padding(top = 16.dp)
+                        )
+                    }
                 }
             }
         },
@@ -442,6 +478,7 @@ fun SearchDialog(
         }
     )
 }
+
 
 @Composable
 fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {

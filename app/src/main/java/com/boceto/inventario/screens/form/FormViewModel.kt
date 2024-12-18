@@ -1,9 +1,10 @@
-package com.boceto.inventario.screens.inventory
+package com.boceto.inventario.screens.form
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.boceto.inventario.network.RetrofitClient
 import com.boceto.inventario.network.SearchResponse
+import com.boceto.inventario.network.WarehousesResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,40 +12,37 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
+import java.text.Normalizer.Form
 import javax.inject.Inject
 
 @HiltViewModel
-class SeachViewModel @Inject constructor() : ViewModel() {
+class FormViewModel @Inject constructor() : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SearchUiState()) // Estado inicial
-    val uiState: StateFlow<SearchUiState> = _uiState
+    private val _uiState = MutableStateFlow(FormUiState())
+    val uiState: StateFlow<FormUiState> = _uiState
 
     // Función para obtener productos
-    fun getProducts(nameProduct: String, idBodega: String) {
-        val apiService = RetrofitClient.createSearchApiClient()
+    fun getWarehouses() {
+        val apiService = RetrofitClient.createFormApiClient()
 
         // Actualizamos el estado a "Cargando"
-        _uiState.value = _uiState.value.copy(isLoading = true )
+        _uiState.value = _uiState.value.copy( )
 
-        apiService.getProductsName(nameProduct, idBodega).enqueue(object : Callback<SearchResponse> {
+        apiService.getWarehouses().enqueue(object : Callback<WarehousesResponse> {
             override fun onResponse(
-                call: Call<SearchResponse>,
-                response: Response<SearchResponse>
+                call: Call<WarehousesResponse>,
+                response: Response<WarehousesResponse>
             ) {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result?.rc == 1) {
-                        // Si la respuesta es exitosa y rc es 1, actualizamos la lista de productos
                         _uiState.value = _uiState.value.copy(
-                            value = result.value, // Asignamos la lista de productos
-                            isLoading = false,
-                            notFoundProduct = false
+                            value = result.value,
                         )
                     } else {
                         // Resultado fallido
                         _uiState.value = _uiState.value.copy(
                             notFoundProduct = true,
-                            isLoading = false,
                             messageNotFoundProduct = result?.messages ?: "Ocurrió un error"
                         )
                     }
@@ -52,13 +50,12 @@ class SeachViewModel @Inject constructor() : ViewModel() {
                     // Hubo un error en la respuesta
                     _uiState.value = _uiState.value.copy(
                         notFoundProduct = true,
-                        isLoading = false,
                         messageNotFoundProduct = "Ocurrió un error"
                     )
                 }
             }
 
-            override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+            override fun onFailure(call: Call<WarehousesResponse>, t: Throwable) {
                 Log.e("API_ERROR", "Error al obtener productos: ${t.message}", t)
 
                 if (t is IOException) {
@@ -69,7 +66,6 @@ class SeachViewModel @Inject constructor() : ViewModel() {
 
                 // En caso de fallo en la llamada, actualizamos el estado con el error
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
                     notFoundProduct = true,
                     messageNotFoundProduct = "Error de conexión o desconocido"
                 )

@@ -3,7 +3,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.boceto.inventario.screens.FormScreen
+import com.boceto.inventario.screens.form.FormScreen
 import com.boceto.inventario.screens.HomeScreen
 import com.boceto.inventario.screens.inventory.InventoryScreen
 import com.boceto.inventario.screens.LoginScreen

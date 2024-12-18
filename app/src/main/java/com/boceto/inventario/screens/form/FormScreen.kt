@@ -1,4 +1,4 @@
-package com.boceto.inventario.screens
+package com.boceto.inventario.screens.form
 
 import android.util.Log
 import androidx.compose.foundation.background
@@ -69,8 +69,8 @@ fun FormList(navHostController: NavHostController) {
     val bodegas = listOf(
         Bodega("01", "Distribuidora"),
         Bodega("02", "Feria Libre"),
-        Bodega("03", "Mega Americas"),
-        Bodega("04", "Mega Chaullabamba"),
+        Bodega("03", "Mega Chaullabamba"),
+        Bodega("04", "Mega Americas"),
         Bodega("05", "Mega Remigio"),
         Bodega("06", "Mega Ricaurte"),
         Bodega("07", "Mega Saraguro")

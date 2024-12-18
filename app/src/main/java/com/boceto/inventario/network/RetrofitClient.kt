@@ -16,4 +16,12 @@ object RetrofitClient {
     fun createSearchApiClient(): SearchApiService {
         return retrofit.create(SearchApiService::class.java)
     }
+
+    fun createFormApiClient(): FormApiService {
+        return retrofit.create(FormApiService::class.java)
+    }
+
+    fun createTableApiClient(): TableApiService {
+        return retrofit.create(TableApiService::class.java)
+    }
 }

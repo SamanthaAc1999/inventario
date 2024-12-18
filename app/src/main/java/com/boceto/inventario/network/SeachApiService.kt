@@ -31,7 +31,7 @@ data class ValueList(
     @SerializedName("nombreSAP")
     val name: String,
     @SerializedName("codigoBarra")
-    val codeBars: Int,
+    val codeBars: String,
     @SerializedName("tieneIVA")
     val iva: Boolean,
     @SerializedName("unidadInventario")

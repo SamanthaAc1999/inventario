@@ -2,8 +2,8 @@ package com.boceto.inventario.screens.inventory
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.boceto.inventario.network.ListProductResponse
 import com.boceto.inventario.network.RetrofitClient
-import com.boceto.inventario.network.SearchResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,22 +14,22 @@ import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class SeachViewModel @Inject constructor() : ViewModel() {
+class TableViewModel @Inject constructor() : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SearchUiState()) // Estado inicial
-    val uiState: StateFlow<SearchUiState> = _uiState
+    private val _uiState = MutableStateFlow(TableUiState()) // Estado inicial
+    val uiState: StateFlow<TableUiState> = _uiState
 
     // Función para obtener productos
-    fun getProducts(nameProduct: String, idBodega: String) {
-        val apiService = RetrofitClient.createSearchApiClient()
+    fun getProducts(seccion: Int, idBodega: String) {
+        val apiService = RetrofitClient.createTableApiClient()
 
         // Actualizamos el estado a "Cargando"
         _uiState.value = _uiState.value.copy(isLoading = true )
 
-        apiService.getProductsName(nameProduct, idBodega).enqueue(object : Callback<SearchResponse> {
+        apiService.getProductsTable(idBodega, seccion).enqueue(object : Callback<ListProductResponse> {
             override fun onResponse(
-                call: Call<SearchResponse>,
-                response: Response<SearchResponse>
+                call: Call<ListProductResponse>,
+                response: Response<ListProductResponse>
             ) {
                 if (response.isSuccessful) {
                     val result = response.body()
@@ -58,7 +58,7 @@ class SeachViewModel @Inject constructor() : ViewModel() {
                 }
             }
 
-            override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+            override fun onFailure(call: Call<ListProductResponse>, t: Throwable) {
                 Log.e("API_ERROR", "Error al obtener productos: ${t.message}", t)
 
                 if (t is IOException) {
