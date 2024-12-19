@@ -41,14 +41,13 @@ import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ui.theme.InventarioTheme
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.ValueItem
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(
     navHostController: NavHostController,
     idBodega: String,
+    seccion: String,
     viewModel: InventoryViewModel = hiltViewModel()
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
@@ -152,8 +151,7 @@ fun InventoryContent(
 @Composable
 fun ScanField(
     idBodega: String,
-    viewModel: InventoryViewModel = hiltViewModel(),
-
+    viewModel: InventoryViewModel = hiltViewModel()
 ) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -191,7 +189,10 @@ fun ScanField(
 }
 
 @Composable
-fun CardItemInformation(valueItem: ValueItem) {
+fun CardItemInformation(
+    valueItem: ValueItem,
+    viewModel: TableViewModel = hiltViewModel()
+) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -225,13 +226,12 @@ fun CardItemInformation(valueItem: ValueItem) {
                    color = Color.Gray
                )
           )
-
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InfoText(label = "Saldo: ", value =valueItem.saldo.toString())
-               // InfoText(label = "Contado: ", value =valueItem.costo.toString())
+                InfoText(label = "Contado: ", value =valueItem.costo.toString())
             }
 
             OutlinedTextField(
@@ -258,7 +258,10 @@ fun CardItemInformation(valueItem: ValueItem) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Button(
-                    onClick = { println("Cantidad agregada: $cant") },
+                    onClick = {
+                        println("Cantidad agregada: $cant")
+                        Log.d("Producto Seleccionado", "Cantidad: ${cant}, Código:")
+                              },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
@@ -271,7 +274,10 @@ fun CardItemInformation(valueItem: ValueItem) {
                 }
 
                 OutlinedButton(
-                    onClick = { cant = "" },
+                    onClick = {
+                  //      viewModel.getProductsTable(idBodega, seccion)
+                        cant = ""
+                              },
                     border = BorderStroke(1.dp, Color(0xFF7E7D98)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
@@ -443,15 +449,19 @@ fun SearchDialog(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .drawBehind {
+                                            // Dibuja una línea en la parte inferior
                                             drawLine(
                                                 color = Color(0xFFA6AEBF),
                                                 start = Offset(0f, size.height),
                                                 end = Offset(size.width, size.height),
-                                                strokeWidth = 1.dp.toPx()
+                                                strokeWidth = 1.dp.toPx() // Ancho de la línea
                                             )
                                         }
                                         .clickable {
-                                            Log.d("Producto Seleccionado", "Nombre: ${item.name}, Código: ${item.code}")
+                                            Log.d(
+                                                "Producto Seleccionado",
+                                                "Código: ${item.code}"
+                                            )
                                         }
                                         .padding(16.dp),
                                     color = Color.Black,
@@ -459,7 +469,6 @@ fun SearchDialog(
                                 )
                             }
                         }
-
                     }
                     else -> {
                         Text(
@@ -492,12 +501,10 @@ fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
     }
 }
 
-
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun InventoryScreenPreview() {
     InventarioTheme {
-        InventoryScreen(rememberNavController(), idBodega = "")
+        InventoryScreen(rememberNavController(), idBodega = "", seccion = "")
     }
 }

@@ -27,7 +27,8 @@ fun AppNavigation () {
 
         composable(Routes.InventoryScreen.routes) { backStackEntry ->
             val idBodega = backStackEntry.arguments?.getString("id_bodega") ?: "00"
-            InventoryScreen(navController, idBodega)
+            val seccion = backStackEntry.arguments?.getString("seccion") ?: "0"
+            InventoryScreen(navController, idBodega, seccion)
         }
     }
 }

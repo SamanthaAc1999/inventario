@@ -21,7 +21,7 @@ class TableViewModel @Inject constructor() : ViewModel() {
 
     // Función para obtener productos
     fun getProducts(seccion: Int, idBodega: String) {
-        val apiService = RetrofitClient.createTableApiClient()
+        val apiService = RetrofitClient.createInventoryApiClient()
 
         // Actualizamos el estado a "Cargando"
         _uiState.value = _uiState.value.copy(isLoading = true )
