@@ -2,6 +2,7 @@ package com.boceto.inventario.screens.inventory
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.boceto.inventario.network.ListProductResponse
 import com.boceto.inventario.network.ProductResponse
 import com.boceto.inventario.network.RetrofitClient
 import com.boceto.inventario.network.SendItemRequest
@@ -61,19 +62,42 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
         })
     }
 
-    fun fetchTableProducts(warehouseCode: String, seccion: Int) {
+    fun FetchInventoryCounting(warehouseCode: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
-        // Implementación pendiente...
+        apiService.getInventoryCounting(warehouseCode = warehouseCode, seccion = seccion).enqueue(object : Callback<ListProductResponse> {
+            override fun onResponse(call: Call<ListProductResponse>, response: Response<ListProductResponse>) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    Log.d("API_SUCCESS", "Inventario recibido exitosamente")
+
+                } else {
+                    Log.e("API_ERROR", "Error al obtener inventario: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ListProductResponse>, t: Throwable) {
+                Log.e("API_ERROR", "Error de conexión: ${t.message}", t)
+                _uiState.value = _uiState.value.copy(messageNotFoundProduct = "Error de conexión")
+            }
+        })
     }
 
-    fun sendItem(request: SendItemRequest) {
-        val apiService = RetrofitClient.createInventoryApiClient()
 
-        apiService.SendItem(request).enqueue(object : Callback<ResponseBody> {
+    fun sendItem(
+        idBodega: String,
+        idSeccion: Int,
+        idItem: String,
+        cantidad: Int,
+        saldo: Int
+    ) {
+        val apiService = RetrofitClient.createInventoryApiClient()
+        apiService.SendItem(SendItemRequest(idBodega = idBodega, idSeccion = idSeccion, idItem = idItem, cantidad = cantidad, saldo = saldo)).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
-                    // Maneja la respuesta según sea necesario
+
+                    // Llamada a FetchInventoryCounting con los parámetros necesarios
+                    FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al enviar el item: ${response.code()}")
                 }
@@ -85,14 +109,20 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
         })
     }
 
-    fun updateItem(request: SendItemRequest) {
+    fun updateItem(
+        idBodega: String,
+        idSeccion: Int,
+        idItem: String,
+        cantidad: Int,
+        saldo: Int
+    ) {
         val apiService = RetrofitClient.createInventoryApiClient()
 
-        apiService.UpdateItem(request).enqueue(object : Callback<ResponseBody> {
+        apiService.UpdateItem(SendItemRequest(idBodega=idBodega, idSeccion=idSeccion, idItem=idItem, cantidad=cantidad, saldo= saldo)).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item actualizado exitosamente")
-                    // Maneja la respuesta según sea necesario
+                    FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al actualizar el item: ${response.code()}")
                 }

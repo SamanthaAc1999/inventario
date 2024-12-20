@@ -21,7 +21,7 @@ class SeachViewModel @Inject constructor() : ViewModel() {
 
     // Función para obtener productos
     fun getProducts(nameProduct: String, idBodega: String) {
-        val apiService = RetrofitClient.createSearchApiClient()
+        val apiService = RetrofitClient.createInventoryApiClient()
 
         // Actualizamos el estado a "Cargando"
         _uiState.value = _uiState.value.copy(isLoading = true )

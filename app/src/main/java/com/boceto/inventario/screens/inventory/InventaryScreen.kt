@@ -47,7 +47,7 @@ import com.boceto.inventario.network.ValueItem
 fun InventoryScreen(
     navHostController: NavHostController,
     idBodega: String,
-    seccion: String,
+    seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel()
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
@@ -66,7 +66,8 @@ fun InventoryScreen(
             InventoryContent(
                 modifier = Modifier.padding(paddingValues),
                 idBodega,
-                uiState
+                uiState,
+                seccion
             )
         }
     )
@@ -129,7 +130,8 @@ fun InventoryTopAppBar(
 fun InventoryContent(
     modifier: Modifier = Modifier,
     idBodega: String,
-    uiState: InventoryUiState
+    uiState: InventoryUiState,
+    seccion: Int
 ) {
     Column(
         modifier = modifier
@@ -140,13 +142,14 @@ fun InventoryContent(
     ) {
         ScanField(idBodega)
         if (uiState.value != null) {
-            CardItemInformation(uiState.value)
+            CardItemInformation(uiState.value, idBodega, seccion)
         } else {
             Text("No hay información disponible", color = Color.Gray)
         }
         CardTableItems()
     }
 }
+
 
 @Composable
 fun ScanField(
@@ -191,7 +194,9 @@ fun ScanField(
 @Composable
 fun CardItemInformation(
     valueItem: ValueItem,
-    viewModel: TableViewModel = hiltViewModel()
+    idBodega: String,
+    seccion: Int,
+    viewModel: InventoryViewModel = hiltViewModel(),
 ) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -215,23 +220,23 @@ fun CardItemInformation(
             // Título del producto
             Text(
                 text = valueItem.name,
-                style = MaterialTheme.typography.titleLarge.copy(
+                style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF151635)
                 )
             )
-            Text(
-              text = valueItem.code,
-               style = MaterialTheme.typography.bodyMedium.copy(
-                   color = Color.Gray
-               )
-          )
+          //  Text(
+          //    text = valueItem.code,
+         //      style = MaterialTheme.typography.bodyMedium.copy(
+          //         color = Color.Gray
+           //    )
+        //  )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InfoText(label = "Saldo: ", value =valueItem.saldo.toString())
-                InfoText(label = "Contado: ", value =valueItem.costo.toString())
+                //InfoText(label = "Contado: ", value =valueItem.costo.toString())
             }
 
             OutlinedTextField(
@@ -259,8 +264,15 @@ fun CardItemInformation(
             ) {
                 Button(
                     onClick = {
+                        viewModel.sendItem(
+                            idBodega = idBodega,
+                            idSeccion = seccion,
+                            idItem = valueItem.code,
+                            cantidad = cant.toInt(),
+                            saldo = valueItem.saldo
+                        )
                         println("Cantidad agregada: $cant")
-                        Log.d("Producto Seleccionado", "Cantidad: ${cant}, Código:")
+                        Log.d("Producto Seleccionado", "Cantidad: ${cant}")
                               },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),
@@ -273,11 +285,19 @@ fun CardItemInformation(
                     )
                 }
 
+
                 OutlinedButton(
                     onClick = {
-                  //      viewModel.getProductsTable(idBodega, seccion)
-                        cant = ""
-                              },
+                        viewModel.updateItem(
+                            idBodega = idBodega,
+                            idSeccion = seccion,
+                            idItem = valueItem.code,
+                            cantidad = cant.toInt(),
+                            saldo = valueItem.saldo
+                        )
+                        println("Cantidad agregada: $cant")
+                        Log.d("Producto Seleccionado", "Cantidad: ${cant}, Código:${valueItem.code}")
+                    },
                     border = BorderStroke(1.dp, Color(0xFF7E7D98)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
@@ -285,8 +305,11 @@ fun CardItemInformation(
                     Text(
                         text = "Reingresar",
                         color = Color(0xFF7E7D98),
-                        fontSize = 16.sp)
+                        fontSize = 16.sp
+                    )
                 }
+
+
             }
         }
     }
@@ -505,6 +528,6 @@ fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
 @Composable
 fun InventoryScreenPreview() {
     InventarioTheme {
-        InventoryScreen(rememberNavController(), idBodega = "", seccion = "")
+        InventoryScreen(rememberNavController(), idBodega = "", seccion = 0)
     }
 }

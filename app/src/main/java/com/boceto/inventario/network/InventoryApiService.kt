@@ -8,31 +8,53 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface InventoryApiService {
+
+    //Solicitud 1 -Obtener valores cuando se escanea el código
     @GET("/items/porbodegacodigobarra/{codeBar}/{whsCode}")
     fun getProducts(
         @Path("codeBar") codeBar: String,
         @Path("whsCode") whsCode: String
     ): Call<ProductResponse>
 
-    @GET("/inventorycounting/{warehouseCode}/{seccion}")
-    fun getProductsTable(
-        @Path("warehouseCode") warehouseCode: String,
-        @Path("seccion") seccion: Int
+
+    //Solicitud 2 - Obtener listado de productos cuando se busca por nombre
+    @GET("/items/porbodeganombreitem/{itemName}/{whsCode}")
+    fun getProductsName(
+        @Path("itemName")
+        itemName: String,
+        @Path("whsCode")
+        whsCode: String
+    ): Call<SearchResponse>
+
+
+    //Solicitud 3 - Obtener listado de productos agregados en esa sección
+    @GET("/inventorycounting")
+    fun getInventoryCounting(
+        @Query("warehouseCode")
+        warehouseCode: String,
+        @Query("seccion")
+        seccion: Int
     ): Call<ListProductResponse>
 
+
+    //Solicitud 4 - Enviar datos del producto y la cantidad cuando agrega el producto (Puede ser primera vez o ir sumando)
     @POST("/inventorycounting")
     fun SendItem(
-        @Body request: SendItemRequest
+        @Body SendItemRequest: SendItemRequest
     ): Call<ResponseBody>
 
+
+    //Solicitud 5 - Enviar datos del producto y la cantidad cuando quiere reemplazar el valor actual de la cantidad.
     @PUT("/inventorycounting")
     fun UpdateItem(
-        @Body request: SendItemRequest
+        @Body SendItemRequest: SendItemRequest
     ): Call<ResponseBody>
 }
 
+//Solicitud 1
 data class ProductResponse(
     @SerializedName("rc")
     val rc: Int,
@@ -59,6 +81,34 @@ data class ValueItem(
     val costo: Double,
 )
 
+//Solicitud 2
+data class SearchResponse(
+    @SerializedName("rc")
+    val rc: Int,
+    @SerializedName("message")
+    val messages: String,
+    @SerializedName("value")
+    val value: List<ValueList>,
+)
+
+data class ValueList(
+    @SerializedName("codigoSAP")
+    val code: String,
+    @SerializedName("nombreSAP")
+    val name: String,
+    @SerializedName("codigoBarra")
+    val codeBars: String,
+    @SerializedName("tieneIVA")
+    val iva: Boolean,
+    @SerializedName("unidadInventario")
+    val unidad: String,
+    @SerializedName("saldo")
+    val saldo: Double,
+    @SerializedName("costo")
+    val costo: Double,
+)
+
+//Solicitud 3
 data class ListProductResponse(
     @SerializedName("rc")
     val rc: Int,
@@ -103,6 +153,8 @@ data class TableList(
     val saldo: Int,
 )
 
+
+//Solicitud 4 -5
 data class SendItemRequest(
     @SerializedName("idBodega")
     val idBodega: String,
@@ -115,3 +167,7 @@ data class SendItemRequest(
     @SerializedName("saldo")
     val saldo: Int
 )
+
+
+
+

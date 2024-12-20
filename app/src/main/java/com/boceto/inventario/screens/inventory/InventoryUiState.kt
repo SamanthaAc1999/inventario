@@ -9,8 +9,8 @@ data class InventoryUiState(
     val notFoundProduct: Boolean = false,
     val messageNotFoundProduct: String = "",
     //SEARCH
-    val isLoading: Boolean = false,
-    val searchvalue: List<ValueList> = emptyList(),
+   // val isLoading: Boolean = false,
+   // val searchvalue: List<ValueList> = emptyList(),
     //table
     val tablevalue: List<TableList> = emptyList(),
 

@@ -12,11 +12,6 @@ object RetrofitClient {
     fun createInventoryApiClient(): InventoryApiService {
         return retrofit.create(InventoryApiService::class.java)
     }
-
-    fun createSearchApiClient(): SearchApiService {
-        return retrofit.create(SearchApiService::class.java)
-    }
-
     fun createFormApiClient(): FormApiService {
         return retrofit.create(FormApiService::class.java)
     }

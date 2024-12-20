@@ -7,7 +7,7 @@ package com.boceto.inventario.navigate
      data object InventoryScreen: Routes(routes = "inventory_screen/{id_bodega}/{seccion}")
      fun createRoute(
          idBodega: String,
-         seccion: String
+         seccion: Int
      ): String {
          return "inventory_screen/${idBodega}/${seccion}"
      }

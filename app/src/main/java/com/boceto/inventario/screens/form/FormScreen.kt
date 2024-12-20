@@ -14,17 +14,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.WarehousesList
-import com.boceto.inventario.ui.theme.InventarioTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,7 +82,7 @@ fun FormScreen(
 fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>) {
     var selectedBodegaId by remember { mutableStateOf<String?>(null) }
     var selectedBodegaNombre by remember { mutableStateOf("") }
-    var seccion: String by remember { mutableStateOf("") }
+    var seccion: Int? by remember { mutableStateOf(null) }
     var expanded by remember { mutableStateOf(false) }
 
     Column(
@@ -143,12 +139,10 @@ fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>
         Text(text = "Sección")
         Spacer(modifier = Modifier.height(10.dp))
         OutlinedTextField(
-            value = seccion,
+            value = seccion?.toString() ?: "",
             placeholder = { Text(text = "Seleccione una sección") },
             onValueChange = { newValue ->
-                if (newValue.all { it.isDigit() }) {
-                    seccion = newValue
-                }
+                seccion = newValue.toIntOrNull()
             },
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
@@ -161,14 +155,16 @@ fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>
         Button(
             onClick = {
                 selectedBodegaId?.let { id ->
-                    navHostController.navigate(Routes.InventoryScreen.createRoute(id, seccion))
+                    seccion?.let { sec ->
+                        navHostController.navigate(Routes.InventoryScreen.createRoute(id, sec))
+                    }
                 }
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF151635)
             ),
             modifier = Modifier.fillMaxWidth(),
-            enabled = selectedBodegaId != null && seccion.isNotEmpty()
+            enabled = selectedBodegaId != null && seccion != null
         ) {
             Text(
                 text = "Ingresar"
