@@ -149,7 +149,7 @@ fun InventoryContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField(idBodega, codeSelected= codeSelected)
+        ScanField(idBodega, codeSelected=codeSelected)
         if (uiState.value != null) {
             CardItemInformation(uiState.value, idBodega, seccion)
         } else {
@@ -173,6 +173,10 @@ fun ScanField(
    LaunchedEffect(Unit) {
     focusRequester.requestFocus()
    }
+
+    if (codeSelected.isNotEmpty()){
+        focusManager.moveFocus(FocusDirection.Next)
+    }
 
     OutlinedTextField(
         value = scanCode,
@@ -499,10 +503,6 @@ fun SearchDialog(
                                             )
                                         }
                                         .clickable {
-                                            Log.d(
-                                                "Producto Seleccionado",
-                                                "Código: ${item.codeBars}"
-                                            )
                                             onSuccessSearch(item.codeBars)
                                             Log.d("Scan", "item.code inicia: ${item.codeBars}")
                                         }
