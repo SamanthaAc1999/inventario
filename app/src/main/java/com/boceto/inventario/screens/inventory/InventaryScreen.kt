@@ -1,6 +1,7 @@
 package com.boceto.inventario.screens.inventory
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,6 +27,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -51,11 +53,24 @@ fun InventoryScreen(
     viewModel: InventoryViewModel = hiltViewModel()
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
+    var codeSelected by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
     when{
         uiState.notFoundProduct -> {
             //TODO: Show dialog not found product
         }
+    }
+
+    if (isDialogVisible) {
+        SearchDialog(
+            idBodega = idBodega,
+            onDismiss = { isDialogVisible = false },
+            onSuccessSearch= {code ->
+                isDialogVisible= false
+                codeSelected = code
+                Log.d("Datos", "Se pasa el codigo: ${codeSelected}")
+            }
+        )
     }
 
     Scaffold(
@@ -67,18 +82,11 @@ fun InventoryScreen(
                 modifier = Modifier.padding(paddingValues),
                 idBodega,
                 uiState,
-                seccion
+                seccion,
+                codeSelected
             )
         }
     )
-
-    if (isDialogVisible) {
-        SearchDialog(
-            idBodega = idBodega,
-            onDismiss = { isDialogVisible = false }
-        )
-
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -131,7 +139,8 @@ fun InventoryContent(
     modifier: Modifier = Modifier,
     idBodega: String,
     uiState: InventoryUiState,
-    seccion: Int
+    seccion: Int,
+    codeSelected: String
 ) {
     Column(
         modifier = modifier
@@ -140,7 +149,7 @@ fun InventoryContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField(idBodega)
+        ScanField(idBodega, codeSelected= codeSelected)
         if (uiState.value != null) {
             CardItemInformation(uiState.value, idBodega, seccion)
         } else {
@@ -150,15 +159,16 @@ fun InventoryContent(
     }
 }
 
-
 @Composable
 fun ScanField(
     idBodega: String,
-    viewModel: InventoryViewModel = hiltViewModel()
+    viewModel: InventoryViewModel = hiltViewModel(),
+    codeSelected: String
 ) {
-    var scanCode by remember { mutableStateOf("") }
+    var scanCode by remember { mutableStateOf(codeSelected) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val contexto = LocalContext.current
 
    LaunchedEffect(Unit) {
     focusRequester.requestFocus()
@@ -175,9 +185,14 @@ fun ScanField(
             .onFocusChanged { state ->
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
+                        Log.d("Scan", "El escaner inicia: ${scanCode}")
                         viewModel.getProduct(scanCode, idBodega)
                     }
                     focusManager.moveFocus(FocusDirection.Next)
+                    Toast
+                        .makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT)
+                        .show()
+                    Log.d("Scan", "El escaner inicia 2: ${scanCode}")
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -201,6 +216,7 @@ fun CardItemInformation(
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
+    val contexto = LocalContext.current
 
     Card(
         colors = CardDefaults.cardColors(
@@ -271,9 +287,11 @@ fun CardItemInformation(
                             cantidad = cant.toInt(),
                             saldo = valueItem.saldo
                         )
-                        println("Cantidad agregada: $cant")
                         Log.d("Producto Seleccionado", "Cantidad: ${cant}")
+                        Toast.makeText(contexto, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
+                        cant=""
                               },
+
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
@@ -418,7 +436,8 @@ fun TableItemRow(item: TableItem) {
 fun SearchDialog(
     idBodega: String,
     onDismiss: () -> Unit,
-    viewModel: SeachViewModel = hiltViewModel()
+    viewModel: SeachViewModel = hiltViewModel(),
+    onSuccessSearch:(String) -> Unit
 ) {
     // Obtenemos el estado actual del ViewModel usando collectAsState
     val uiState = viewModel.uiState.collectAsState().value
@@ -472,19 +491,20 @@ fun SearchDialog(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .drawBehind {
-                                            // Dibuja una línea en la parte inferior
                                             drawLine(
                                                 color = Color(0xFFA6AEBF),
                                                 start = Offset(0f, size.height),
                                                 end = Offset(size.width, size.height),
-                                                strokeWidth = 1.dp.toPx() // Ancho de la línea
+                                                strokeWidth = 1.dp.toPx()
                                             )
                                         }
                                         .clickable {
                                             Log.d(
                                                 "Producto Seleccionado",
-                                                "Código: ${item.code}"
+                                                "Código: ${item.codeBars}"
                                             )
+                                            onSuccessSearch(item.codeBars)
+                                            Log.d("Scan", "item.code inicia: ${item.codeBars}")
                                         }
                                         .padding(16.dp),
                                     color = Color.Black,
@@ -510,7 +530,6 @@ fun SearchDialog(
         }
     )
 }
-
 
 @Composable
 fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
