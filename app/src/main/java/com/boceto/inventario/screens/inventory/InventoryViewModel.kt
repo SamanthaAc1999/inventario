@@ -64,11 +64,19 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
 
     fun FetchInventoryCounting(warehouseCode: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
-        apiService.getInventoryCounting(warehouseCode = warehouseCode, seccion = seccion).enqueue(object : Callback<ListProductResponse> {
+        apiService.getInventoryCounting( warehouseCode, seccion).enqueue(object : Callback<ListProductResponse> {
             override fun onResponse(call: Call<ListProductResponse>, response: Response<ListProductResponse>) {
                 if (response.isSuccessful) {
                     val result = response.body()
-                    Log.d("API_SUCCESS", "Inventario recibido exitosamente")
+                    if(result?.rc == 1) {
+                        val listProductUpdate = result.value.map {
+                            TableItem(
+                                name = it.nombreItem,
+                                quantity = it.codigoBarra,
+                                code=it.codigoBarra
+                            )
+                        }
+                    }
 
                 } else {
                     Log.e("API_ERROR", "Error al obtener inventario: ${response.code()}")

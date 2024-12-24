@@ -165,17 +165,21 @@ fun ScanField(
     viewModel: InventoryViewModel = hiltViewModel(),
     codeSelected: String
 ) {
-    var scanCode by remember { mutableStateOf(codeSelected) }
+    var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val contexto = LocalContext.current
 
-   LaunchedEffect(Unit) {
-    focusRequester.requestFocus()
-   }
+    // Sincronizar codeSelected con scanCode
+    LaunchedEffect(codeSelected) {
+        if (codeSelected.isNotEmpty()) {
+            scanCode = codeSelected
+            focusManager.moveFocus(FocusDirection.Next)
+        }
+    }
 
-    if (codeSelected.isNotEmpty()){
-        focusManager.moveFocus(FocusDirection.Next)
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
     OutlinedTextField(
@@ -189,14 +193,11 @@ fun ScanField(
             .onFocusChanged { state ->
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
-                        Log.d("Scan", "El escaner inicia: ${scanCode}")
+                        Log.d("Scan", "El escáner inicia: $scanCode")
                         viewModel.getProduct(scanCode, idBodega)
                     }
                     focusManager.moveFocus(FocusDirection.Next)
-                    Toast
-                        .makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT)
-                        .show()
-                    Log.d("Scan", "El escaner inicia 2: ${scanCode}")
+                    Toast.makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT).show()
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -209,6 +210,7 @@ fun ScanField(
         )
     )
 }
+
 
 @Composable
 fun CardItemInformation(
