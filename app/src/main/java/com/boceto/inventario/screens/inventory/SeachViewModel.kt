@@ -20,13 +20,13 @@ class SeachViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<SearchUiState> = _uiState
 
     // Función para obtener productos
-    fun getProducts(nameProduct: String, idBodega: String) {
+    fun getProducts(nameProduct: String, idBodega: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
 
         // Actualizamos el estado a "Cargando"
         _uiState.value = _uiState.value.copy(isLoading = true )
 
-        apiService.getProductsName(nameProduct, idBodega).enqueue(object : Callback<SearchResponse> {
+        apiService.getProductsName(nameProduct, idBodega, seccion).enqueue(object : Callback<SearchResponse> {
             override fun onResponse(
                 call: Call<SearchResponse>,
                 response: Response<SearchResponse>

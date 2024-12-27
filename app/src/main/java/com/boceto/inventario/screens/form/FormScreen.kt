@@ -127,7 +127,6 @@ fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>
                             selectedBodegaId = bodega.id
                             selectedBodegaNombre = bodega.nombre
                             expanded = false
-
                             Log.d("BodegaSeleccionada", "ID: ${selectedBodegaId}, Nombre: ${selectedBodegaNombre}")
                         }
                     )

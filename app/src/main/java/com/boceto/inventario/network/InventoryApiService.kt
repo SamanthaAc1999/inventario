@@ -13,20 +13,23 @@ import retrofit2.http.Query
 interface InventoryApiService {
 
     //Solicitud 1 -Obtener valores cuando se escanea el código
-    @GET("/items/porbodegacodigobarra/{codeBar}/{whsCode}")
+    @GET("/items/porbodegacodigobarra/{codeBar}/{whsCode}/{seccion}")
     fun getProducts(
         @Path("codeBar") codeBar: String,
-        @Path("whsCode") whsCode: String
+        @Path("whsCode") whsCode: String,
+        @Path("seccion") seccion: Int,
     ): Call<ProductResponse>
 
 
     //Solicitud 2 - Obtener listado de productos cuando se busca por nombre
-    @GET("/items/porbodeganombreitem/{itemName}/{whsCode}")
+    @GET("/items/porbodeganombreitem/{itemName}/{whsCode}/{seccion}")
     fun getProductsName(
         @Path("itemName")
         itemName: String,
         @Path("whsCode")
-        whsCode: String
+        whsCode: String,
+        @Path("seccion")
+        seccion: Int
     ): Call<SearchResponse>
 
 
@@ -79,6 +82,10 @@ data class ValueItem(
     val saldo: Int,
     @SerializedName("costo")
     val costo: Double,
+    @SerializedName("totalSeccion")
+    val totalSeccion: Double,
+    @SerializedName("totalGeneral")
+    val totalGeneral: Double
 )
 
 //Solicitud 2

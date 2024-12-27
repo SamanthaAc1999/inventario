@@ -22,10 +22,10 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState
 
-    fun getProduct(codeProduct: String, idBodega: String) {
+    fun getProduct(codeProduct: String, idBodega: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
 
-        apiService.getProducts(codeProduct, idBodega).enqueue(object : Callback<ProductResponse> {
+        apiService.getProducts(codeProduct, idBodega, seccion).enqueue(object : Callback<ProductResponse> {
             override fun onResponse(
                 call: Call<ProductResponse>,
                 response: Response<ProductResponse>
@@ -52,7 +52,6 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
 
             override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
                 Log.e("API_ERROR", "Error al obtener productos: ${t.message}", t)
-
                 if (t is IOException) {
                     Log.e("API_ERROR", "Error de conexión: ${t.message}")
                 } else {
@@ -64,20 +63,30 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
 
     fun FetchInventoryCounting(warehouseCode: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
+
+        _uiState.value = _uiState.value.copy(isLoading = true)
+
         apiService.getInventoryCounting( warehouseCode, seccion).enqueue(object : Callback<ListProductResponse> {
-            override fun onResponse(call: Call<ListProductResponse>, response: Response<ListProductResponse>) {
+            override fun onResponse(
+                call: Call<ListProductResponse>,
+                response: Response<ListProductResponse>
+            ) {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if(result?.rc == 1) {
-                        val listProductUpdate = result.value.map {
-                            TableItem(
-                                name = it.nombreItem,
-                                quantity = it.codigoBarra,
-                                code=it.codigoBarra
-                            )
-                        }
+                       val listProductUpdate = result.value.map {
+                           TableItem(
+                               name = it.nombreItem,
+                               quantify = it.cantidad,
+                               code = it.codigoBarra
+                           )
+                       }
+                        _uiState.value = _uiState.value.copy(
+                            listProductUpdate = listProductUpdate,
+                            isLoading = false,
+                            notFoundProduct = false
+                        )
                     }
-
                 } else {
                     Log.e("API_ERROR", "Error al obtener inventario: ${response.code()}")
                 }
@@ -89,7 +98,6 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
             }
         })
     }
-
 
     fun sendItem(
         idBodega: String,
@@ -103,14 +111,12 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
-
                     // Llamada a FetchInventoryCounting con los parámetros necesarios
                     FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al enviar el item: ${response.code()}")
                 }
             }
-
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("API_ERROR", "Error al enviar el item: ${t.message}", t)
             }

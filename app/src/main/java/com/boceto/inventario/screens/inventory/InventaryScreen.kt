@@ -44,7 +44,7 @@ import com.boceto.inventario.ui.theme.InventarioTheme
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.ValueItem
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun InventoryScreen(
     navHostController: NavHostController,
@@ -52,6 +52,9 @@ fun InventoryScreen(
     seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.FetchInventoryCounting(idBodega,seccion)
+    }
     var isDialogVisible by remember { mutableStateOf(false) }
     var codeSelected by remember { mutableStateOf("") }
     val uiState by viewModel.uiState.collectAsState()
@@ -64,11 +67,11 @@ fun InventoryScreen(
     if (isDialogVisible) {
         SearchDialog(
             idBodega = idBodega,
+            seccion= seccion,
             onDismiss = { isDialogVisible = false },
             onSuccessSearch= {code ->
                 isDialogVisible= false
                 codeSelected = code
-                Log.d("Datos", "Se pasa el codigo: ${codeSelected}")
             }
         )
     }
@@ -149,21 +152,22 @@ fun InventoryContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField(idBodega, codeSelected=codeSelected)
+        ScanField(idBodega, seccion, codeSelected=codeSelected)
         if (uiState.value != null) {
             CardItemInformation(uiState.value, idBodega, seccion)
         } else {
             Text("No hay información disponible", color = Color.Gray)
         }
-        CardTableItems()
+        CardTableItems(uiState.listProductUpdate)
     }
 }
 
 @Composable
 fun ScanField(
     idBodega: String,
+    seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel(),
-    codeSelected: String
+    codeSelected: String,
 ) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -174,7 +178,6 @@ fun ScanField(
     LaunchedEffect(codeSelected) {
         if (codeSelected.isNotEmpty()) {
             scanCode = codeSelected
-            focusManager.moveFocus(FocusDirection.Next)
         }
     }
 
@@ -194,10 +197,12 @@ fun ScanField(
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
                         Log.d("Scan", "El escáner inicia: $scanCode")
-                        viewModel.getProduct(scanCode, idBodega)
+                        viewModel.getProduct(scanCode, idBodega, seccion)
                     }
                     focusManager.moveFocus(FocusDirection.Next)
-                    Toast.makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT).show()
+                   // Toast
+                     //   .makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT)
+                      //  .show()
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -221,7 +226,6 @@ fun CardItemInformation(
 ) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
     val contexto = LocalContext.current
 
     Card(
@@ -257,8 +261,9 @@ fun CardItemInformation(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                InfoText(label = "Saldo: ", value =valueItem.saldo.toString())
-                //InfoText(label = "Contado: ", value =valueItem.costo.toString())
+                InfoText(label = "Stock: ", value =valueItem.saldo.toString())
+                InfoText(label = "Contado: ", value =valueItem.totalSeccion.toString())
+                InfoText(label = "Contado: ", value =valueItem.totalGeneral.toString())
             }
 
             OutlinedTextField(
@@ -293,11 +298,9 @@ fun CardItemInformation(
                             cantidad = cant.toInt(),
                             saldo = valueItem.saldo
                         )
-                        Log.d("Producto Seleccionado", "Cantidad: ${cant}")
                         Toast.makeText(contexto, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
                         cant=""
                               },
-
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.weight(1f)
@@ -308,7 +311,6 @@ fun CardItemInformation(
                         fontSize = 16.sp
                     )
                 }
-
 
                 OutlinedButton(
                     onClick = {
@@ -332,8 +334,6 @@ fun CardItemInformation(
                         fontSize = 16.sp
                     )
                 }
-
-
             }
         }
     }
@@ -357,16 +357,7 @@ fun InfoText(label: String, value: String) {
 }
 
 @Composable
-fun CardTableItems() {
-    val itemsList = listOf(
-        TableItem("CHANCLETA PILSENER 1LT", "25", "02698756"),
-        TableItem("GLOBO CARNAVAL BAMBUCO", "20", "02698757"),
-        TableItem("PLATO METALICO NAV.H18A2872 (33X1.5CM)", "25", "02698758"),
-        TableItem("GLOBO CARNAVAL BAMBUCO", "20", "02698757"),
-        TableItem("PLATO METALICO NAV.H18A2872 (33X1.5CM)", "25", "02698758"),
-        TableItem("CHANCLETA PILSENER 1LT", "25", "02698756"),
-    )
-
+fun CardTableItems(listProductUpdate: List<TableItem>) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -376,29 +367,38 @@ fun CardTableItems() {
             .border(1.dp, color = Color(0xFF151635), shape = RoundedCornerShape(12.dp)),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "Listado Cargado",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF151635)
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Encabezado como un item
+            item {
+                Text(
+                    text = "Listado Cargado",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF151635)
+                    ),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(itemsList) { item ->
-                    TableItemRow(item)
-                }
+            // Elementos de la lista
+            items(listProductUpdate) { item ->
+                TableItemRow(item)
             }
         }
     }
 }
 
-data class TableItem(val name: String, val quantity: String, val code: String)
+
+data class TableItem(
+    val name: String,
+    val quantify: Int,
+    val code: String
+)
 
 @Composable
 fun TableItemRow(item: TableItem) {
@@ -416,15 +416,16 @@ fun TableItemRow(item: TableItem) {
                 text = item.name,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Medium,
-                    color = Color(0xFF151635)
+                    color = Color(0xFF313251)
                 ),
                 modifier = Modifier.weight(1f)
             )
+            Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = item.quantity,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF151635)
+                text = item.quantify.toString(),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF151635),
                 )
             )
         }
@@ -441,6 +442,7 @@ fun TableItemRow(item: TableItem) {
 @Composable
 fun SearchDialog(
     idBodega: String,
+    seccion: Int,
     onDismiss: () -> Unit,
     viewModel: SeachViewModel = hiltViewModel(),
     onSuccessSearch:(String) -> Unit
@@ -465,7 +467,7 @@ fun SearchDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        viewModel.getProducts(searchQuery, idBodega)
+                        viewModel.getProducts(searchQuery, idBodega, seccion)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     modifier = Modifier.fillMaxWidth(),
@@ -533,22 +535,10 @@ fun SearchDialog(
     )
 }
 
-@Composable
-fun SearchResultItem(result: String, onResultSelected: (String) -> Unit) {
-    TextButton(
-        onClick = { onResultSelected(result) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = "Resultado de búsqueda: $result" }
-    ) {
-        Text(text = result, color = Color(0xFF151635))
-    }
-}
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun InventoryScreenPreview() {
     InventarioTheme {
-        InventoryScreen(rememberNavController(), idBodega = "", seccion = 0)
+        InventoryScreen(rememberNavController(), idBodega = "03", seccion = 3)
     }
 }
