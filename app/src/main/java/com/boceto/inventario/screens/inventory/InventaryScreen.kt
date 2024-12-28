@@ -72,6 +72,7 @@ fun InventoryScreen(
             onSuccessSearch= {code ->
                 isDialogVisible= false
                 codeSelected = code
+                viewModel.getProduct(code,idBodega,seccion)
             }
         )
     }
@@ -143,8 +144,9 @@ fun InventoryContent(
     idBodega: String,
     uiState: InventoryUiState,
     seccion: Int,
-    codeSelected: String
+    codeSelected: String,
 ) {
+    var isUpdateProduct by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -152,9 +154,11 @@ fun InventoryContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField(idBodega, seccion, codeSelected=codeSelected)
+        ScanField(idBodega, seccion, codeSelected = codeSelected, isUpdateProduct = isUpdateProduct)
         if (uiState.value != null) {
-            CardItemInformation(uiState.value, idBodega, seccion)
+            CardItemInformation(uiState.value, idBodega, seccion){
+                isUpdateProduct = it
+            }
         } else {
             Text("No hay información disponible", color = Color.Gray)
         }
@@ -168,13 +172,16 @@ fun ScanField(
     seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel(),
     codeSelected: String,
+    isUpdateProduct: (Boolean)
 ) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val contexto = LocalContext.current
 
-    // Sincronizar codeSelected con scanCode
+    if (isUpdateProduct){
+    scanCode = ""
+    }
+
     LaunchedEffect(codeSelected) {
         if (codeSelected.isNotEmpty()) {
             scanCode = codeSelected
@@ -200,9 +207,6 @@ fun ScanField(
                         viewModel.getProduct(scanCode, idBodega, seccion)
                     }
                     focusManager.moveFocus(FocusDirection.Next)
-                   // Toast
-                     //   .makeText(contexto, "Escaneo Exitoso", Toast.LENGTH_SHORT)
-                      //  .show()
                 }
             },
         keyboardOptions = KeyboardOptions.Default.copy(
@@ -223,6 +227,7 @@ fun CardItemInformation(
     idBodega: String,
     seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel(),
+    isUpdateProduct: (Boolean) -> Unit
 ) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
@@ -262,8 +267,8 @@ fun CardItemInformation(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InfoText(label = "Stock: ", value =valueItem.saldo.toString())
-                InfoText(label = "Contado: ", value =valueItem.totalSeccion.toString())
-                InfoText(label = "Contado: ", value =valueItem.totalGeneral.toString())
+                InfoText(label = "Sección: ", value =valueItem.totalSeccion.toString())
+                InfoText(label = "General: ", value =valueItem.totalGeneral.toString())
             }
 
             OutlinedTextField(
@@ -298,8 +303,8 @@ fun CardItemInformation(
                             cantidad = cant.toInt(),
                             saldo = valueItem.saldo
                         )
-                        Toast.makeText(contexto, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
                         cant=""
+                        isUpdateProduct(true)
                               },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),

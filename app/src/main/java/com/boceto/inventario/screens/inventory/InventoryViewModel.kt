@@ -1,12 +1,15 @@
 package com.boceto.inventario.screens.inventory
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.boceto.inventario.network.ListProductResponse
 import com.boceto.inventario.network.ProductResponse
 import com.boceto.inventario.network.RetrofitClient
 import com.boceto.inventario.network.SendItemRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okhttp3.ResponseBody
@@ -17,7 +20,9 @@ import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
-class InventoryViewModel @Inject constructor() : ViewModel() {
+class InventoryViewModel @Inject constructor(
+    @ApplicationContext private val context: Context
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState
@@ -33,9 +38,11 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result?.rc == 1) {
+                        Toast.makeText(context, "Producto Encontrado", Toast.LENGTH_SHORT).show()
                         _uiState.value = _uiState.value.copy(value = result.value)
                     } else {
                         // Resultado fallido
+                        Toast.makeText(context, "Producto No Encontrado", Toast.LENGTH_SHORT).show()
                         _uiState.value = _uiState.value.copy(
                             notFoundProduct = true,
                             messageNotFoundProduct = result?.messages ?: "Ocurrió un error"
@@ -111,14 +118,17 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
-                    // Llamada a FetchInventoryCounting con los parámetros necesarios
+                    Toast.makeText(context, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
+                    getProduct(idItem,idBodega,idSeccion)
                     FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al enviar el item: ${response.code()}")
+                    Toast.makeText(context, "Error envio: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("API_ERROR", "Error al enviar el item: ${t.message}", t)
+                Toast.makeText(context, "Error envio: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }
@@ -136,14 +146,18 @@ class InventoryViewModel @Inject constructor() : ViewModel() {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item actualizado exitosamente")
+                    Toast.makeText(context, "Cantidad Actualizada con éxito", Toast.LENGTH_SHORT).show()
+                    getProduct(idItem,idBodega,idSeccion)
                     FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al actualizar el item: ${response.code()}")
+                    Toast.makeText(context, "Error envio: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("API_ERROR", "Error al actualizar el item: ${t.message}", t)
+                Toast.makeText(context, "Error envio: ${t.message}", Toast.LENGTH_LONG).show()
             }
         })
     }

@@ -42,6 +42,7 @@ class SeachViewModel @Inject constructor() : ViewModel() {
                         )
                     } else {
                         // Resultado fallido
+                        Log.d("Scan", "El escáner inicia: $result")
                         _uiState.value = _uiState.value.copy(
                             notFoundProduct = true,
                             isLoading = false,
