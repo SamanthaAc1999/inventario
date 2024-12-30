@@ -119,7 +119,8 @@ class InventoryViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
                     Toast.makeText(context, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
-                    getProduct(idItem,idBodega,idSeccion)
+                    //getProduct(idItem,idBodega,idSeccion)
+                    _uiState.value = _uiState.value.copy(value = null)
                     FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al enviar el item: ${response.code()}")
@@ -147,7 +148,8 @@ class InventoryViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item actualizado exitosamente")
                     Toast.makeText(context, "Cantidad Actualizada con éxito", Toast.LENGTH_SHORT).show()
-                    getProduct(idItem,idBodega,idSeccion)
+                    //getProduct(idItem,idBodega,idSeccion)
+                    _uiState.value = _uiState.value.copy(value = null)
                     FetchInventoryCounting(idBodega, idSeccion)
                 } else {
                     Log.e("API_ERROR", "Error al actualizar el item: ${response.code()}")

@@ -178,18 +178,22 @@ fun ScanField(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    if (isUpdateProduct){
-    scanCode = ""
+    LaunchedEffect(isUpdateProduct) {
+        if (isUpdateProduct) {
+            Log.d("Update","Se lee ${scanCode}")
+            scanCode = ""
+        }
     }
 
     LaunchedEffect(codeSelected) {
         if (codeSelected.isNotEmpty()) {
             scanCode = codeSelected
+            Log.d("item", "Se está leyendo: $scanCode")
         }
     }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+       focusRequester.requestFocus()
     }
 
     OutlinedTextField(
@@ -231,7 +235,6 @@ fun CardItemInformation(
 ) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    val contexto = LocalContext.current
 
     Card(
         colors = CardDefaults.cardColors(
@@ -256,12 +259,6 @@ fun CardItemInformation(
                     color = Color(0xFF151635)
                 )
             )
-          //  Text(
-          //    text = valueItem.code,
-         //      style = MaterialTheme.typography.bodyMedium.copy(
-          //         color = Color.Gray
-           //    )
-        //  )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
@@ -303,7 +300,6 @@ fun CardItemInformation(
                             cantidad = cant.toInt(),
                             saldo = valueItem.saldo
                         )
-                        cant=""
                         isUpdateProduct(true)
                               },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
@@ -326,8 +322,7 @@ fun CardItemInformation(
                             cantidad = cant.toInt(),
                             saldo = valueItem.saldo
                         )
-                        println("Cantidad agregada: $cant")
-                        Log.d("Producto Seleccionado", "Cantidad: ${cant}, Código:${valueItem.code}")
+                        isUpdateProduct(true)
                     },
                     border = BorderStroke(1.dp, Color(0xFF7E7D98)),
                     shape = RoundedCornerShape(8.dp),
