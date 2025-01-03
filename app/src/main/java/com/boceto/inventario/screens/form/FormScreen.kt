@@ -16,17 +16,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.WarehousesList
+import com.boceto.inventario.ui.theme.InventarioTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FormScreen(
     navHostController: NavHostController,
-    viewModel: FormViewModel = hiltViewModel() // Inyectamos el ViewModel
+    viewModel: FormViewModel = hiltViewModel()
 ) {
     // Observar los cambios del estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
@@ -79,7 +82,11 @@ fun FormScreen(
 }
 
 @Composable
-fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>) {
+fun FormList(
+    navHostController: NavHostController,
+    bodegas: List<WarehousesList>,
+    viewModel: FormViewModel = hiltViewModel(),
+) {
     var selectedBodegaId by remember { mutableStateOf<String?>(null) }
     var selectedBodegaNombre by remember { mutableStateOf("") }
     var seccion: Int? by remember { mutableStateOf(null) }
@@ -152,10 +159,24 @@ fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>
         )
         Spacer(modifier = Modifier.height(30.dp))
         Button(
+            //onClick = {
+                //selectedBodegaId?.let { id ->
+                 //   seccion?.let { sec ->
+                       // navHostController.navigate(Routes.InventoryScreen.createRoute(id, sec))
+                  //  }
+                //}
+            //},
             onClick = {
                 selectedBodegaId?.let { id ->
                     seccion?.let { sec ->
-                        navHostController.navigate(Routes.InventoryScreen.createRoute(id, sec))
+                        viewModel.sendWarenhouse(
+                            warehouseCode = id,
+                            seccion = sec,
+                            onSuccess = {
+                                Log.d("NAVIGATION", "Navegando a InventoryScreen con id=$id, sec=$sec")
+                                navHostController.navigate(Routes.InventoryScreen.createRoute(id, sec))
+                            },
+                        )
                     }
                 }
             },
@@ -169,5 +190,13 @@ fun FormList(navHostController: NavHostController, bodegas: List<WarehousesList>
                 text = "Ingresar"
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun FormScreenPreview() {
+    InventarioTheme {
+        FormScreen(navHostController = rememberNavController())
     }
 }

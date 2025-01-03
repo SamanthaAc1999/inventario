@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SeachViewModel @Inject constructor() : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SearchUiState()) // Estado inicial
+    private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState
 
     // Función para obtener productos

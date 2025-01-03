@@ -93,7 +93,7 @@ fun Card(navHostController: NavHostController){
                         fontWeight = FontWeight.Medium
                     )
                     Text(
-                        text = "Crear primer registro de productos.",
+                        text = "Crear registro de productos.",
                         fontSize = 14.sp
                     )
                 }

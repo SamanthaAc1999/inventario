@@ -29,8 +29,11 @@ class InventoryViewModel @Inject constructor(
 
     fun getProduct(codeProduct: String, idBodega: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
+        val call = apiService.getProducts(codeProduct, idBodega, seccion)
 
-        apiService.getProducts(codeProduct, idBodega, seccion).enqueue(object : Callback<ProductResponse> {
+        Log.d("API_REQUEST", "URL: ${call.request().url()}")
+
+       call.enqueue(object : Callback<ProductResponse> {
             override fun onResponse(
                 call: Call<ProductResponse>,
                 response: Response<ProductResponse>
@@ -119,9 +122,8 @@ class InventoryViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
                     Toast.makeText(context, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
-                    //getProduct(idItem,idBodega,idSeccion)
-                    _uiState.value = _uiState.value.copy(value = null)
                     FetchInventoryCounting(idBodega, idSeccion)
+                    _uiState.value = _uiState.value.copy(value = null)
                 } else {
                     Log.e("API_ERROR", "Error al enviar el item: ${response.code()}")
                     Toast.makeText(context, "Error envio: ${response.code()}", Toast.LENGTH_LONG).show()
@@ -148,9 +150,8 @@ class InventoryViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item actualizado exitosamente")
                     Toast.makeText(context, "Cantidad Actualizada con éxito", Toast.LENGTH_SHORT).show()
-                    //getProduct(idItem,idBodega,idSeccion)
-                    _uiState.value = _uiState.value.copy(value = null)
                     FetchInventoryCounting(idBodega, idSeccion)
+                    _uiState.value = _uiState.value.copy(value = null)
                 } else {
                     Log.e("API_ERROR", "Error al actualizar el item: ${response.code()}")
                     Toast.makeText(context, "Error envio: ${response.code()}", Toast.LENGTH_LONG).show()

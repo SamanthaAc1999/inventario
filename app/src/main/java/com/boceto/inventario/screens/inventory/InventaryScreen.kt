@@ -43,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ui.theme.InventarioTheme
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.ValueItem
+import kotlinx.coroutines.delay
 
 
 @Composable
@@ -154,7 +155,13 @@ fun InventoryContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        ScanField(idBodega, seccion, codeSelected = codeSelected, isUpdateProduct = isUpdateProduct)
+        ScanField(
+            idBodega,
+            seccion,
+            codeSelected = codeSelected,
+            isUpdateProduct = isUpdateProduct,
+            update = { newValue -> isUpdateProduct = newValue }
+        )
         if (uiState.value != null) {
             CardItemInformation(uiState.value, idBodega, seccion){
                 isUpdateProduct = it
@@ -172,16 +179,19 @@ fun ScanField(
     seccion: Int,
     viewModel: InventoryViewModel = hiltViewModel(),
     codeSelected: String,
-    isUpdateProduct: (Boolean)
+    isUpdateProduct: Boolean,
+    update: (Boolean) -> Unit
 ) {
     var scanCode by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
+    Log.d("item", "itemmmmm: $isUpdateProduct")
+
     LaunchedEffect(isUpdateProduct) {
         if (isUpdateProduct) {
-            Log.d("Update","Se lee ${scanCode}")
             scanCode = ""
+            update(false)
         }
     }
 
@@ -192,8 +202,9 @@ fun ScanField(
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isUpdateProduct) {
        focusRequester.requestFocus()
+        Log.d("item", "Se está leyendoooooooo: $isUpdateProduct")
     }
 
     OutlinedTextField(
@@ -223,7 +234,6 @@ fun ScanField(
         )
     )
 }
-
 
 @Composable
 fun CardItemInformation(
