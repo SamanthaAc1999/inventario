@@ -79,13 +79,17 @@ data class ValueItem(
     @SerializedName("unidadInventario")
     val unidad: String,
     @SerializedName("saldo")
-    val saldo: Int,
+    val saldo: Double,
     @SerializedName("costo")
     val costo: Double,
     @SerializedName("totalSeccion")
     val totalSeccion: Double,
     @SerializedName("totalGeneral")
-    val totalGeneral: Double
+    val totalGeneral: Double,
+    @SerializedName("nombreBodega")
+    val nombreBodega: String,
+    @SerializedName("ultimoPrecioCompra")
+    val ultimoPrecioCompra:Double
 )
 
 //Solicitud 2
@@ -113,6 +117,10 @@ data class ValueList(
     val saldo: Double,
     @SerializedName("costo")
     val costo: Double,
+    @SerializedName("nombreBodega")
+    val nombreBodega: String,
+    @SerializedName("ultimoPrecioCompra")
+    val ultimoPrecioCompra: Double,
 )
 
 //Solicitud 3
@@ -149,15 +157,15 @@ data class TableList(
     @SerializedName("exportado")
     val exportado: Boolean,
     @SerializedName("cantidad")
-    val cantidad: Int,
+    val cantidad: Double,
     @SerializedName("costo")
-    val costo: Float,
+    val costo: Double,
     @SerializedName("valor")
-    val valor: Float,
+    val valor: Double,
     @SerializedName("diferencia")
-    val diferencia: Int,
+    val diferencia: Double,
     @SerializedName("saldo")
-    val saldo: Int,
+    val saldo: Double,
 )
 
 
@@ -170,9 +178,9 @@ data class SendItemRequest(
     @SerializedName("idItem")
     val idItem: String,
     @SerializedName("cantidad")
-    val cantidad: Int,
+    val cantidad: Double,
     @SerializedName("saldo")
-    val saldo: Int
+    val saldo: Double
 )
 
 

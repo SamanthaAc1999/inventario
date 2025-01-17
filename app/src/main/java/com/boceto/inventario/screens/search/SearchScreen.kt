@@ -1,4 +1,4 @@
-package com.boceto.inventario.screens.inventory
+package com.boceto.inventario.screens.search
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -19,10 +19,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.contentDescription
@@ -39,6 +41,9 @@ import androidx.navigation.compose.rememberNavController
 import com.boceto.inventario.ui.theme.InventarioTheme
 import com.boceto.inventario.navigate.Routes
 import com.boceto.inventario.network.ValueItem
+import com.boceto.inventario.screens.inventory.InventoryUiState
+import com.boceto.inventario.screens.inventory.InventoryViewModel
+import com.boceto.inventario.screens.inventory.SeachViewModel
 
 
 @Composable
@@ -75,7 +80,7 @@ fun InventoryScreen(
 
     Scaffold(
         topBar = {
-            InventoryTopAppBar(navHostController, onSearchClick = { isDialogVisible = true }, seccion)
+            InventoryTopAppBar(navHostController, onSearchClick = { isDialogVisible = true })
         },
         content = { paddingValues ->
             InventoryContent(
@@ -93,12 +98,10 @@ fun InventoryScreen(
 @Composable
 fun InventoryTopAppBar(
     navHostController: NavHostController,
-    onSearchClick: () -> Unit,
-    seccion: Int
+    onSearchClick: () -> Unit
 ) {
     CenterAlignedTopAppBar(
-        title = {
-            Text( text = "Sección " + seccion.toString(), style = MaterialTheme.typography.titleMedium) },
+        title = { Text(text = "Ingreso Conteo", style = MaterialTheme.typography.titleMedium) },
         navigationIcon = {
             IconButton(
                 onClick = {
@@ -166,10 +169,8 @@ fun InventoryContent(
         } else {
             Text("No hay información disponible", color = Color.Gray)
         }
-        CardTableItems(uiState.listProductUpdate)
     }
 }
-
 
 @Composable
 fun ScanField(
@@ -216,7 +217,7 @@ fun ScanField(
             .onFocusChanged { state ->
                 if (!state.isFocused) {
                     if (scanCode.isNotEmpty()) {
-                        Log.d("Encontrado", "El escáner inicia: $scanCode")
+                        Log.d("Scan", "El escáner inicia: $scanCode")
                         viewModel.getProduct(scanCode, idBodega, seccion)
                     }
                     focusManager.moveFocus(FocusDirection.Next)
@@ -243,7 +244,6 @@ fun CardItemInformation(
 ) {
     var cant by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    val isLoading by viewModel.isLoading.collectAsState(initial = false)
 
     Card(
         colors = CardDefaults.cardColors(
@@ -268,24 +268,13 @@ fun CardItemInformation(
                     color = Color(0xFF151635)
                 )
             )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    InfoText(label = "Stock: ", value = valueItem.saldo.toString())
-                    InfoText(label = "Precio: ", value = "$" + valueItem.ultimoPrecioCompra.toString())
-                }
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    InfoText(label = "Cant. Sección: ", value =valueItem.totalSeccion.toString())
-                    InfoText(label = "Cant. General: ", value = valueItem.totalGeneral.toString())
-                }
+                InfoText(label = "Stock: ", value =valueItem.saldo.toString())
+                InfoText(label = "Sección: ", value =valueItem.totalSeccion.toString())
+                InfoText(label = "General: ", value =valueItem.totalGeneral.toString())
             }
 
             OutlinedTextField(
@@ -317,18 +306,14 @@ fun CardItemInformation(
                             idBodega = idBodega,
                             idSeccion = seccion,
                             idItem = valueItem.code,
-                            cantidad = cant.replace(",", ".").toDouble(),
+                            cantidad = cant.toDouble(),
                             saldo = valueItem.saldo
                         )
                         isUpdateProduct(true)
                               },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isLoading) Color(0xFFBDBDBD) else Color(0xFF151635), // Gris si está deshabilitado
-                        contentColor = if (isLoading) Color(0xFF757575) else Color.White         // Texto gris claro si está deshabilitado
-                    ),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF151635)),
                     shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.weight(1f),
-                    enabled = !isLoading,
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         text = "Agregar",
@@ -343,7 +328,7 @@ fun CardItemInformation(
                             idBodega = idBodega,
                             idSeccion = seccion,
                             idItem = valueItem.code,
-                            cantidad = cant.replace(",", ".").toDouble(),
+                            cantidad = cant.toDouble(),
                             saldo = valueItem.saldo
                         )
                         isUpdateProduct(true)
@@ -372,96 +357,14 @@ fun InfoText(label: String, value: String) {
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = Color.Gray
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF151635)
             )
         )
     }
 }
 
-@Composable
-fun CardTableItems(listProductUpdate: List<TableItem>) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, color = Color(0xFF151635), shape = RoundedCornerShape(12.dp)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            // Encabezado como un item
-            item {
-                Text(
-                    text = "Listado Cargado",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF151635)
-                    ),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-
-            // Elementos de la lista
-            items(listProductUpdate) { item ->
-                TableItemRow(item)
-            }
-        }
-    }
-}
-
-
-data class TableItem(
-    val name: String,
-    val quantify: Double,
-    val code: String
-)
-
-@Composable
-fun TableItemRow(item: TableItem) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = item.name,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF313251)
-                ),
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = item.quantify.toString(),
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF151635),
-                )
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = item.code,
-            style = MaterialTheme.typography.bodySmall.copy(
-                color = Color.Gray
-            )
-        )
-        Divider(color = Color(0xFFDADADA), thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
-    }
-}
 @Composable
 fun SearchDialog(
     idBodega: String,
@@ -517,52 +420,29 @@ fun SearchDialog(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             items(uiState.value) { item ->
-                                Column(
+                                Text(
+                                    text = item.name,
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .drawBehind {
+                                            drawLine(
+                                                color = Color(0xFFA6AEBF),
+                                                start = Offset(0f, size.height),
+                                                end = Offset(size.width, size.height),
+                                                strokeWidth = 1.dp.toPx()
+                                            )
+                                        }
                                         .clickable {
                                             onSuccessSearch(item.codeBars)
                                             Log.d("Scan", "item.code inicia: ${item.codeBars}")
                                         }
-                                        .padding(16.dp)
-                                ) {
-                                    // Nombre del producto
-                                    Text(
-                                        text = item.name,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        style = MaterialTheme.typography.bodyMedium.copy(
-                                            fontWeight = FontWeight.Medium,
-                                            color = Color(0xFF313251)
-                                        )
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    // Código del producto
-                                    Text(
-                                        text = item.codeBars,
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            color = Color.Gray
-                                        )
-                                    )
-
-                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                    // Stock del producto
-                                    InfoText(
-                                        label = "STOCK ${item.nombreBodega}: ",
-                                        value = item.saldo.toString()
-                                    )
-                                }
-                                Divider(
-                                    color = Color(0xFFDADADA),
-                                    thickness = 1.dp,
-                                    modifier = Modifier.padding(vertical = 8.dp)
+                                        .padding(16.dp),
+                                    color = Color.Black,
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         }
                     }
-
                     else -> {
                         Text(
                             text = "No se encontraron resultados",
@@ -583,7 +463,7 @@ fun SearchDialog(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun InventoryScreenPreview() {
+fun SearchScreenPreview() {
     InventarioTheme {
         InventoryScreen(rememberNavController(), idBodega = "03", seccion = 3)
     }

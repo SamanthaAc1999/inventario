@@ -3,6 +3,7 @@ package com.boceto.inventario.screens.inventory
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.boceto.inventario.network.ListProductResponse
 import com.boceto.inventario.network.ProductResponse
@@ -26,25 +27,32 @@ class InventoryViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(InventoryUiState())
     val uiState: StateFlow<InventoryUiState> = _uiState
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    fun setLoadingState(loading: Boolean) {
+        _isLoading.value = loading
+    }
 
     fun getProduct(codeProduct: String, idBodega: String, seccion: Int) {
         val apiService = RetrofitClient.createInventoryApiClient()
         val call = apiService.getProducts(codeProduct, idBodega, seccion)
-
-        Log.d("API_REQUEST", "URL: ${call.request().url()}")
-
+        Log.d("Encontrado", "URL: ${call.request().url()}")
        call.enqueue(object : Callback<ProductResponse> {
             override fun onResponse(
                 call: Call<ProductResponse>,
                 response: Response<ProductResponse>
             ) {
+                Log.d("Encontrado", "Body: ${response.body()?.toString() ?: "Cuerpo vacío"}")
                 if (response.isSuccessful) {
                     val result = response.body()
                     if (result?.rc == 1) {
+                        Log.d("Encontrado", "Encontrado")
                         Toast.makeText(context, "Producto Encontrado", Toast.LENGTH_SHORT).show()
                         _uiState.value = _uiState.value.copy(value = result.value)
                     } else {
                         // Resultado fallido
+                        Log.d("Scan", "No Encontrado")
                         Toast.makeText(context, "Producto No Encontrado", Toast.LENGTH_SHORT).show()
                         _uiState.value = _uiState.value.copy(
                             notFoundProduct = true,
@@ -53,6 +61,7 @@ class InventoryViewModel @Inject constructor(
                     }
                 } else {
                     // Hubo error
+                    Log.d("Encontrado", "Hubo error")
                     _uiState.value = _uiState.value.copy(
                         notFoundProduct = true,
                         messageNotFoundProduct = "Ocurrió un error"
@@ -61,11 +70,11 @@ class InventoryViewModel @Inject constructor(
             }
 
             override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
-                Log.e("API_ERROR", "Error al obtener productos: ${t.message}", t)
+                Log.e("Encontrado", "Error al obtener productos: ${t.message}", t)
                 if (t is IOException) {
-                    Log.e("API_ERROR", "Error de conexión: ${t.message}")
+                    Log.e("Encontrado", "Error de conexión: ${t.message}")
                 } else {
-                    Log.e("API_ERROR", "Error desconocido: ${t.message}")
+                    Log.e("Encontrado", "Error desconocido: ${t.message}")
                 }
             }
         })
@@ -84,6 +93,7 @@ class InventoryViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val result = response.body()
                     if(result?.rc == 1) {
+                        Log.d("Inventario QR", "${response.body()}")
                        val listProductUpdate = result.value.map {
                            TableItem(
                                name = it.nombreItem,
@@ -98,12 +108,12 @@ class InventoryViewModel @Inject constructor(
                         )
                     }
                 } else {
-                    Log.e("API_ERROR", "Error al obtener inventario: ${response.code()}")
+                    Log.e("Inventario", "Error al obtener inventario: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<ListProductResponse>, t: Throwable) {
-                Log.e("API_ERROR", "Error de conexión: ${t.message}", t)
+                Log.e("Inventario", "Error de conexión: ${t.message}", t)
                 _uiState.value = _uiState.value.copy(messageNotFoundProduct = "Error de conexión")
             }
         })
@@ -113,12 +123,18 @@ class InventoryViewModel @Inject constructor(
         idBodega: String,
         idSeccion: Int,
         idItem: String,
-        cantidad: Int,
-        saldo: Int
+        cantidad: Double,
+        saldo: Double
     ) {
         val apiService = RetrofitClient.createInventoryApiClient()
-        apiService.SendItem(SendItemRequest(idBodega = idBodega, idSeccion = idSeccion, idItem = idItem, cantidad = cantidad, saldo = saldo)).enqueue(object : Callback<ResponseBody> {
+        setLoadingState(true)
+        val request= SendItemRequest(idBodega = idBodega, idSeccion = idSeccion, idItem = idItem, cantidad = cantidad, saldo = saldo)
+        val call = apiService.SendItem(request)
+        Log.d("Inventario QR", "${cantidad} ")
+        Log.d("Inventario QR", "${request} ")
+        call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                setLoadingState(false)
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item enviado exitosamente")
                     Toast.makeText(context, "Cantidad Agregada con éxito", Toast.LENGTH_SHORT).show()
@@ -130,6 +146,7 @@ class InventoryViewModel @Inject constructor(
                 }
             }
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                setLoadingState(false)
                 Log.e("API_ERROR", "Error al enviar el item: ${t.message}", t)
                 Toast.makeText(context, "Error envio: ${t.message}", Toast.LENGTH_LONG).show()
             }
@@ -140,12 +157,12 @@ class InventoryViewModel @Inject constructor(
         idBodega: String,
         idSeccion: Int,
         idItem: String,
-        cantidad: Int,
-        saldo: Int
+        cantidad: Double,
+        saldo: Double
     ) {
         val apiService = RetrofitClient.createInventoryApiClient()
 
-        apiService.UpdateItem(SendItemRequest(idBodega=idBodega, idSeccion=idSeccion, idItem=idItem, cantidad=cantidad, saldo= saldo)).enqueue(object : Callback<ResponseBody> {
+        apiService.UpdateItem(SendItemRequest(idBodega =idBodega, idSeccion =idSeccion, idItem =idItem, cantidad =cantidad, saldo = saldo)).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 if (response.isSuccessful) {
                     Log.d("API_SUCCESS", "Item actualizado exitosamente")
@@ -157,7 +174,6 @@ class InventoryViewModel @Inject constructor(
                     Toast.makeText(context, "Error envio: ${response.code()}", Toast.LENGTH_LONG).show()
                 }
             }
-
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Log.e("API_ERROR", "Error al actualizar el item: ${t.message}", t)
                 Toast.makeText(context, "Error envio: ${t.message}", Toast.LENGTH_LONG).show()

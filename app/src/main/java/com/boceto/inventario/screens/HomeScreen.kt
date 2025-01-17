@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -54,6 +55,8 @@ fun HomeScreen(navHostController: NavHostController) {
             ) {
             Spacer(modifier = Modifier.height(10.dp))
             Card(navHostController)
+            Spacer(modifier = Modifier.height(10.dp))
+            CardSearch(navHostController)
         }
     }
 }
@@ -62,14 +65,14 @@ fun HomeScreen(navHostController: NavHostController) {
 fun Card(navHostController: NavHostController){
     Card (
         colors = CardDefaults.cardColors(
-            containerColor = Color(0XFFECF1F7),
+            containerColor = Color(0XFF0ECF1F7),
             contentColor = Color(0xFF151635),
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 5.dp
+            defaultElevation =2.dp
         ),
-        modifier = Modifier.padding(16.dp).clickable {
+        modifier = Modifier.padding(20.dp).clickable {
             navHostController.navigate(Routes.FormScreen.routes)
         }
     ) {
@@ -85,7 +88,7 @@ fun Card(navHostController: NavHostController){
                     tint = Color(0xFF151635),
                     modifier = Modifier.size(40.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(30.dp))
                 Column {
                     Text(
                         text = "Ingreso Conteo",
@@ -94,7 +97,55 @@ fun Card(navHostController: NavHostController){
                     )
                     Text(
                         text = "Crear registro de productos.",
-                        fontSize = 14.sp
+                        color = Color(0xFF151635),
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun CardSearch(navHostController: NavHostController){
+    Card (
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0XFF010034),
+            contentColor = Color(0xFFffff),
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        ),
+        modifier = Modifier.padding(16.dp).clickable {
+            navHostController.navigate(Routes.SearchScreen.routes)
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.width(30.dp))
+                Column {
+                    Text(
+                        text = "Inventario",
+                        fontSize = 16.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "Consulta inventario general",
+                        color = Color.White,
+                        fontSize = 12.sp
                     )
                 }
             }
